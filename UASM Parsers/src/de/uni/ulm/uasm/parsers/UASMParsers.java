@@ -7,8 +7,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
+import org.codehaus.jparsec.OperatorTable;
 import org.codehaus.jparsec.Parser;
 import org.codehaus.jparsec.Parsers;
 import org.codehaus.jparsec.Scanners;
@@ -17,7 +19,9 @@ import org.codehaus.jparsec.Token;
 import org.codehaus.jparsec.Tokens;
 import org.codehaus.jparsec.Tokens.Fragment;
 import org.codehaus.jparsec.Tokens.Tag;
+import org.codehaus.jparsec.functors.Binary;
 import org.codehaus.jparsec.functors.Map;
+import org.codehaus.jparsec.functors.Unary;
 import org.codehaus.jparsec.pattern.Pattern;
 import org.codehaus.jparsec.pattern.Patterns;
 
@@ -29,7 +33,7 @@ public final class UASMParsers {
 			"exec",
 			"domain", "enum",
 			"in", "of", "from",
-			"controlled", "static", "monitored", "out", "function", "initially",
+			"controlled", "static", "derived", "shared", "monitored", "out", "function", "initially", "always",
 			"rule",
 			"par", "endpar",
 			"seq", "next", "endseq",
@@ -44,7 +48,7 @@ public final class UASMParsers {
 			"local",
 			"result", "return",
 			"true", "false", "undef", "self",
-			"exists", "holds",
+			"exists", "unique", "holds",
 			"pick",
 			"SET", "LIST", "MAP",
 			"ANY", "AGENT",
@@ -72,14 +76,45 @@ public final class UASMParsers {
 		}));
 		LEXERS.add(Terminals.StringLiteral.DOUBLE_QUOTE_TOKENIZER);
 	}
+	private static final HashMap<String, Integer> BINARY_OPERATORS = new HashMap<String, Integer>();
+	private static final HashMap<String, Integer> UNARY_OPERATORS = new HashMap<String, Integer>();
+	static {
+		BINARY_OPERATORS.put("^", 8);
+		BINARY_OPERATORS.put("*", 7);
+		BINARY_OPERATORS.put("/", 7);
+		BINARY_OPERATORS.put("div", 7);
+		BINARY_OPERATORS.put("mod", 7);
+		BINARY_OPERATORS.put("+", 6);
+		BINARY_OPERATORS.put("-", 6);
+		BINARY_OPERATORS.put("<", 5);
+		BINARY_OPERATORS.put("<=", 5);
+		BINARY_OPERATORS.put(">", 5);
+		BINARY_OPERATORS.put(">=", 5);
+		BINARY_OPERATORS.put("=", 5);
+		BINARY_OPERATORS.put("!=", 5);
+		BINARY_OPERATORS.put("memberof", 4);
+		BINARY_OPERATORS.put("and", 2);
+		BINARY_OPERATORS.put("xor", 1);
+		BINARY_OPERATORS.put("or", 1);
+		BINARY_OPERATORS.put("implies", 0);
+		BINARY_OPERATORS.put("iff", 0);
+		
+		UNARY_OPERATORS.put("+", 9);
+		UNARY_OPERATORS.put("-", 9);
+		UNARY_OPERATORS.put("not", 3);
+	}
 	private static UASMParsers instance;
 	private final MapperProvider mapperProvider;
 	private final Map<Token, UASMNode> identifierMapper;
 	private final Map<Token, UASMNode> keywordMapper;
 	private final Map<Token, UASMNode> operatorMapper;
+	private final Map<Token, UASMNode> stringMapper;
+	private final Map<Token, UASMNode> numberMapper;
 	private final Terminals terminals;
 	private final Parser<Object> tokenizer;
 	private Parser<UASMNode> idParser;
+	private Parser<UASMNode> stringParser;
+	private Parser<UASMNode> numberParser;
 	private HashMap<String, Parser<UASMNode>> keywordParsers = new HashMap<String, Parser<UASMNode>>();
 	private HashMap<String, Parser<UASMNode>> operatorParsers = new HashMap<String, Parser<UASMNode>>();
 	private HashMap<String, List<Parser<UASMNode>>> additionalParsers = new HashMap<String, List<Parser<UASMNode>>>();
@@ -98,6 +133,10 @@ public final class UASMParsers {
 			throw new NullPointerException("The KeywordMapper must not be null.");
 		if (mapperProvider.getOperatorMapper() == null)
 			throw new NullPointerException("The OperatorMapper must not be null.");
+		if (mapperProvider.getStringMapper() == null)
+			throw new NullPointerException("The StringMapper must not be null.");
+		if (mapperProvider.getNumberMapper() == null)
+			throw new NullPointerException("The NumberMapper must not be null.");
 		if (additionalKeywords != null)
 			KEYWORDS.addAll(additionalKeywords);
 		if (additionalOperators != null)
@@ -108,6 +147,8 @@ public final class UASMParsers {
 		this.identifierMapper = mapperProvider.getIdentifierMapper();
 		this.keywordMapper = mapperProvider.getKeywordMapper();
 		this.operatorMapper = mapperProvider.getOperatorMapper();
+		this.stringMapper = mapperProvider.getStringMapper();
+		this.numberMapper = mapperProvider.getNumberMapper();
 		
 		terminals = Terminals.caseSensitive(OPERATORS.toArray(new String[OPERATORS.size()]), KEYWORDS.toArray(new String[KEYWORDS.size()]));
 		LinkedList<Parser<? extends Object>> list = new LinkedList<Parser<? extends Object>>();
@@ -132,8 +173,10 @@ public final class UASMParsers {
 	public Parser<UASMNode> getParser(String nonTerminal) {
 		if (parsers == null)
 			parsers = new HashMap<String, Parser.Reference<UASMNode>>();
-		Parser.Reference<UASMNode> parser = parsers.get(nonTerminal);
-		if (parser == null) {
+		Parser.Reference<UASMNode> parserRef = parsers.get(nonTerminal);
+		if (parserRef == null) {
+			parserRef = Parser.newReference();
+			parsers.put(nonTerminal, parserRef);
 			if ("Asm".equals(nonTerminal))
 				createAsmParser();
 			else if ("Header".equals(nonTerminal))
@@ -204,6 +247,8 @@ public final class UASMParsers {
 				createLetRuleParser();
 			else if ("ExtendRule".equals(nonTerminal))
 				createExtendRuleParser();
+			else if ("ImportRule".equals(nonTerminal))
+				createImportRuleParser();
 			else if ("IterateRule".equals(nonTerminal))
 				createIterateRuleParser();
 			else if ("WhileRule".equals(nonTerminal))
@@ -214,6 +259,8 @@ public final class UASMParsers {
 				createLocalRuleParser();
 			else if ("Term".equals(nonTerminal))
 				createTermParser();
+			else if ("BasicTerm".equals(nonTerminal))
+				createBasicTermParser();
 			else if ("FunctionTerm".equals(nonTerminal))
 				createFunctionTermParser();
 			else if ("EnumTerm".equals(nonTerminal))
@@ -224,10 +271,8 @@ public final class UASMParsers {
 				createVariableTermParser();
 			else if ("LocationTerm".equals(nonTerminal))
 				createLocationTermParser();
-			else if ("BinaryOperator".equals(nonTerminal))
-				createBinaryOperatorParser();
-			else if ("UnaryOperator".equals(nonTerminal))
-				createUnaryOperatorParser();
+			else if ("Expression".equals(nonTerminal))
+				createExpressionParser();
 			else if ("Literal".equals(nonTerminal))
 				createLiteralParser();
 			else if ("BooleanLiteral".equals(nonTerminal))
@@ -282,8 +327,10 @@ public final class UASMParsers {
 				createExtendableDomainParser();
 			else if ("BasicDomain".equals(nonTerminal))
 				createBasicDomainParser();
-			else
-				return null;
+			else {
+				parsers.remove(nonTerminal);
+				throw new IllegalArgumentException("Unknown parser requested: '" + nonTerminal + "'");
+			}
 		}
 		return parsers.get(nonTerminal).lazy();
 	}
@@ -304,30 +351,29 @@ public final class UASMParsers {
 	}
 	
 	private void createHeaderParser() {
-		createListParser("Header", Parsers.or(	getParser("UseDirective"),
-												getParser("ImportDirective"),
-												getParser("ExportDirective")).many());
+		createArrayParser("Header", Parsers.array(Parsers.or(	getParser("UseDirective"),
+																getParser("ImportDirective"),
+																star(getParser("ExportDirective")))));
 	}
 	
 	private void createUseDirectiveParser() {
 		createArrayParser("UseDirective", Parsers.array(getKeywordParser("use"),
-														getParser("StringTerm")));
+														getStringParser()));
 	}
 	
 	private void createImportDirectiveParser() {
 		createArrayParser("ImportDirective", Parsers.array(	getKeywordParser("import"),
-															getParser("StringTerm"),
+															getStringParser(),
 															Parsers.array(	getOperatorParser("("),
 																			csplus(Parsers.or(	getParser("IdDomain"),
 																								getParser("IdFunction"),
 																								getParser("IdRule"))),
-																			getOperatorParser(")")).optional()
-															));
+																			getOperatorParser(")")).optional()));
 	}
 	
 	private void createExportDirectiveParser() {
 		createArrayParser("ExportDirective", Parsers.array(	getKeywordParser("export"),
-															getParser("StringTerm"),
+															getStringParser(),
 															Parsers.or(	Parsers.array(	getOperatorParser("("),
 																						csplus(Parsers.or(	getParser("IdDomain"),
 																											getParser("IdFunction"),
@@ -338,7 +384,7 @@ public final class UASMParsers {
 	}
 	
 	private void createBodyParser() {
-		createArrayParser("Body",	Parsers.array(	getParser("Definition"),
+		createArrayParser("Body",	Parsers.array(	star(getParser("Definition")),
 													Parsers.array(	getKeywordParser("exec"),
 																	getParser("IdRule")).optional()));
 	}
@@ -351,7 +397,7 @@ public final class UASMParsers {
 	
 	private void createTypeDefinitionParser() {
 		createParser("TypeDefinition", Parsers.or(	getParser("DomainDefinition"),
-													getParser("EnumerationDefinition")));
+													getParser("EnumerateDefinition")));
 	}
 	
 	private void createDomainDefinitionParser() {
@@ -395,8 +441,10 @@ public final class UASMParsers {
 	}
 	
 	private void createControlledFunctionParser() {
-		createArrayParser("ControlledFunction", Parsers.array(	getKeywordParser("controlled").optional(),
-																getKeywordParser("function"),
+		createArrayParser("ControlledFunction", Parsers.array(	Parsers.or(	getKeywordParser("controlled"),
+																			getKeywordParser("function"),
+																			Parsers.array(	getKeywordParser("controlled"),
+																							getKeywordParser("function"))),
 																getParser("IdFunction"),
 																getParser("ParameterDefinition").optional(),
 																Parsers.array(	getOperatorParser("->"),
@@ -484,28 +532,28 @@ public final class UASMParsers {
 	
 	private void createParBlockParser() {
 		createArrayParser("ParBlock", Parsers.or(	Parsers.array(	getKeywordParser("par"),
-																	getParser("Rule").many1(),
+																	plus(getParser("Rule")),
 																	getKeywordParser("endpar")),
 													Parsers.array(	getOperatorParser("{"),
-																	getParser("Rule").many1(),
+																	plus(getParser("Rule")),
 																	getOperatorParser("}"))));
 	}
 	
 	private void createSeqBlockParser() {
 		createArrayParser("SeqBlock", Parsers.or(Parsers.array(getKeywordParser("seq"),
-																getParser("Rule").many1(),
+																plus(getParser("Rule")),
 																getKeywordParser("endseq")),
 													Parsers.array(getOperatorParser("["),
-																getParser("Rule").many1(),
+																plus(getParser("Rule")),
 																getOperatorParser("]"))));
 	}
 	
 	private void createSeqNextParser() {
 		createArrayParser("SeqNext", Parsers.array(	getKeywordParser("seq"),
 													getParser("Rule"),
-													Parsers.array(	getKeywordParser("next"),
-																	getParser("Rule").many1()),
-													getKeywordParser("endseq")));
+													plus(Parsers.array(	getKeywordParser("next"),
+																		getParser("Rule"))),
+													getKeywordParser("endseq").optional()));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -531,7 +579,9 @@ public final class UASMParsers {
 	
 	private void createCallRuleParser() {
 		createArrayParser("CallRule", Parsers.array(getParser("IdRule"),
-													csplus(getParser("Term"))));
+													Parsers.array(	getOperatorParser("("),
+																	csplus(getParser("Term")),
+																	getOperatorParser(")")).optional()));
 	}
 	
 	private void createSkipRuleParser() {
@@ -550,16 +600,16 @@ public final class UASMParsers {
 															getKeywordParser("then"),
 															getParser("Rule"),
 															Parsers.array(	getKeywordParser("else"),
-																			getParser("Rule").optional())));
+																			getParser("Rule")).optional()));
 	}
 	
 	private void createCaseRuleParser() {
 		createArrayParser("CaseRule", Parsers.array(getKeywordParser("case"),
 													getParser("Term"),
 													getKeywordParser("of"),
-													Parsers.array(	getParser("Term"),
-																	getOperatorParser(":"),
-																	getParser("Rule")).many1(),
+													plus(Parsers.array(	getParser("Term"),
+																		getOperatorParser(":"),
+																		getParser("Rule"))),
 													Parsers.array(	getKeywordParser("otherwise"),
 																	getParser("Rule")).optional(),
 													getKeywordParser("endcase")));
@@ -571,11 +621,11 @@ public final class UASMParsers {
 																				getKeywordParser("in"),
 																				getParser("EnumerableTerm"))),
 														Parsers.array(	getKeywordParser("with"),
-																		getParser("Term")),
+																		getParser("Term")).optional(),
 														Parsers.array(	getKeywordParser("do"),
 																		getParser("Rule")),
 														Parsers.array(	getKeywordParser("ifnone"),
-																		getParser("Rule"))));
+																		getParser("Rule")).optional()));
 	}
 	
 	private void createForAllRuleParser() {
@@ -584,11 +634,11 @@ public final class UASMParsers {
 																				getKeywordParser("in"),
 																				getParser("EnumerableTerm"))),
 														Parsers.array(	getKeywordParser("with"),
-																		getParser("Term")),
+																		getParser("Term")).optional(),
 														Parsers.array(	getKeywordParser("do"),
 																		getParser("Rule")),
 														Parsers.array(	getKeywordParser("ifnone"),
-																		getParser("Rule"))));
+																		getParser("Rule")).optional()));
 	}
 	
 	private void createLetRuleParser() {
@@ -606,7 +656,16 @@ public final class UASMParsers {
 														getKeywordParser("with"),
 														csplus(getParser("VariableTerm")),
 														Parsers.array(	getKeywordParser("as"),
-																		getParser("VariableTerm")).optional()));
+																		getParser("VariableTerm")).optional(),
+														getKeywordParser("do"),
+														getParser("Rule")));
+	}
+	
+	private void createImportRuleParser() {
+		createArrayParser("ImportRule", Parsers.array(	getKeywordParser("import"),
+														getParser("VariableTerm"),
+														getKeywordParser("do"),
+														getParser("Rule")));
 	}
 	
 	private void createIterateRuleParser() {
@@ -629,9 +688,9 @@ public final class UASMParsers {
 	
 	private void createLocalRuleParser() {
 		createArrayParser("LocalRule", Parsers.array(	getKeywordParser("local"),
-														getIdParser(),
-														getParser("ParameterDefinition").optional(),
-														csplus(Parsers.array(	Parsers.array(	getOperatorParser("->"),
+														csplus(Parsers.array(	getIdParser(),
+																				getParser("ParameterDefinition").optional(),
+																				Parsers.array(	getOperatorParser("->"),
 																								getParser("Domain")).optional(),
 																				Parsers.array(	getKeywordParser("initially"),
 																								getParser("InitialFunctionDefinition")).optional())),
@@ -640,34 +699,30 @@ public final class UASMParsers {
 	}
 	
 	@SuppressWarnings("unchecked")
+	private void createBasicTermParser() {
+		createParser("BasicTerm", Parsers.or(	getParser("LocationTerm"),
+//												getParser("SpecialTerm"),
+												getParser("ComprehensionTerm"),
+												getParser("StructureTerm"),
+												getParser("PickTerm"),
+												getParser("ConditionalTerm"),
+												getParser("CaseTerm"),
+												getParser("RuleAsTerm"),
+												getParser("ReturnTerm"),
+												getParser("ForAllTerm"),
+												getParser("ExistsTerm"),
+												getParser("Literal")));
+	}
+	
 	private void createTermParser() {
-		createArrayParser("Term", Parsers.array(Parsers.or(	getParser("Literal"),
-															getParser("LocationTerm"),
-															Parsers.array(	getParser("Term"),
-																			getParser("BinaryOperator"),
-																			getParser("Term")),
-															Parsers.array(	getParser("UnaryOperator"),
-																			getParser("Term")),
-															getParser("SpecialTerm"),
-															Parsers.array(	getOperatorParser("("),
-																			getParser("Term"),
-																			getOperatorParser(")")),
-															getParser("ComprehensionTerm"),
-															getParser("StructureTerm"),
-															getParser("PickTerm"),
-															getParser("ConditionalTerm"),
-															getParser("CaseTerm"),
-															getParser("RuleAsTerm"),
-															getParser("ReturnTerm"),
-															getParser("ForAllTerm"),
-															getParser("ExistsTerm"))));
+		createParser("Term", getParser("Expression"));
 	}
 	
 	private void createFunctionTermParser() {
 		createArrayParser("FunctionTerm", Parsers.array(getParser("IdFunction"),
 														Parsers.array(	getOperatorParser("("),
 																		csplus(getParser("Term")),
-																		getOperatorParser(")"))));
+																		getOperatorParser(")")).optional()));
 	}
 	
 	private void createEnumTermParser() {
@@ -688,41 +743,34 @@ public final class UASMParsers {
 												getKeywordParser("result")));
 	}
 	
-	@SuppressWarnings("unchecked")
-	private void createBinaryOperatorParser() {
-		createParser("BinaryOperator", Parsers.or(	getOperatorParser("<"),
-													getOperatorParser(">"),
-													getOperatorParser("<="),
-													getOperatorParser(">="),
-													getOperatorParser("!="),
-													getOperatorParser("="),
-													getOperatorParser("memberof"),
-													getOperatorParser("-"),
-													getOperatorParser("+"),
-													getOperatorParser("*"),
-													getOperatorParser("div"),
-													getOperatorParser("/"),
-													getOperatorParser("mod"),
-													getOperatorParser("^"),
-													getOperatorParser("and"),
-													getOperatorParser("or"),
-													getOperatorParser("xor"),
-													getOperatorParser("implies"),
-													getOperatorParser("iff")));
+	private void createExpressionParser() {
+		OperatorTable<UASMNode> table = new OperatorTable<UASMNode>();
+		for (Entry<String, Integer> entry : BINARY_OPERATORS.entrySet())
+			table.infixl(createBinaryOperator(entry.getKey()), entry.getValue());
+		for (Entry<String, Integer> entry : UNARY_OPERATORS.entrySet())
+			table.prefix(createUnaryOperator(entry.getKey()), entry.getValue());
+		parsers.put("BasicExpression", Parser.<UASMNode>newReference());
+		createArrayParser("BasicExpression", Parsers.array(Parsers.or(	getParser("BasicTerm"),
+																		Parsers.array(	getOperatorParser("("),
+																						getParser("Term"),
+																						getOperatorParser(")")))));
+		createParser("Expression", table.build(getParser("BasicExpression")));
 	}
 	
-	private void createUnaryOperatorParser() {
-		createParser("UnaryOperator", Parsers.or(	getOperatorParser("+"),
-													getOperatorParser("-"),
-													getOperatorParser("not")));
+	private Parser<Binary<UASMNode>> createBinaryOperator(String operator) {
+		return terminals.token(operator).retn(mapperProvider.getBinaryOperatorMapper(operator));
+	}
+	
+	private Parser<Unary<UASMNode>> createUnaryOperator(String operator) {
+		return terminals.token(operator).retn(mapperProvider.getUnaryOperatorMapper(operator));
 	}
 	
 	private void createLiteralParser() {
-		createParser("Literal", Parsers.or(	getParser("NumberLiteral"),
+		createParser("Literal", Parsers.or(	getNumberParser(),
 											getParser("BooleanLiteral"),
 											getParser("KernelLiteral"),
-											getParser("StringLiteral"),
-											getParser("CharLiteral"),
+											getStringParser(),
+//											getParser("CharLiteral"),
 											getParser("EnumTerm")));
 	}
 	
@@ -761,7 +809,7 @@ public final class UASMParsers {
 													getKeywordParser("in"),
 													getParser("EnumerableTerm"),
 													Parsers.array(	getKeywordParser("with"),
-																	getParser("Term"))));
+																	getParser("Term")).optional()));
 	}
 	
 	private void createConditionalTermParser() {
@@ -779,7 +827,7 @@ public final class UASMParsers {
 													getKeywordParser("of"),
 													Parsers.array(	getParser("Term"),
 																	getOperatorParser(":"),
-																	getParser("Term")).many1(),
+																	plus(getParser("Term"))),
 													Parsers.array(	getKeywordParser("otherwise"),
 																	getParser("Term")).optional(),
 													getKeywordParser("endcase")));
@@ -858,25 +906,31 @@ public final class UASMParsers {
 	}
 	
 	private void createSetTermParser() {
-		createArrayParser("SetTerm", Parsers.array(	getOperatorParser("{"),
-													csplus(getParser("Term")),
-													getOperatorParser("}")));
+		createArrayParser("SetTerm", Parsers.or(Parsers.array(	getOperatorParser("{"),
+																csplus(getParser("Term")),
+																getOperatorParser("}")),
+																Parsers.array(	getOperatorParser("{"),
+																				getOperatorParser("}"))));
 	}
 	
 	private void createListTermParser() {
-		createArrayParser("ListTerm", Parsers.array(getOperatorParser("["),
-													csplus(getParser("Term")),
-													getOperatorParser("]")));
+		createArrayParser("ListTerm", Parsers.or(Parsers.array(	getOperatorParser("["),
+																csplus(getParser("Term")),
+																getOperatorParser("]")),
+																Parsers.array(	getOperatorParser("["),
+																				getOperatorParser("]"))));
 	}
 	
 	private void createBagTermParser() {
-		createArrayParser("BagTerm", Parsers.array(	getOperatorParser("<"),
-													csplus(getParser("Term")),
-													getOperatorParser(">")));
+		createArrayParser("BagTerm", Parsers.or(Parsers.array(	getOperatorParser("<"),
+																csplus(getParser("Term")),
+																getOperatorParser(">")),
+																Parsers.array(	getOperatorParser("<"),
+																				getOperatorParser(">"))));
 	}
 	
 	private void createMapTermParser() {
-		createArrayParser("BagTerm", Parsers.or(Parsers.array(	getOperatorParser("{"),
+		createArrayParser("MapTerm", Parsers.or(Parsers.array(	getOperatorParser("{"),
 																csplus(Parsers.array(	getParser("Term"),
 																						getOperatorParser("->"),
 																						getParser("Term"))),
@@ -934,34 +988,47 @@ public final class UASMParsers {
 												getKeywordParser("RULE")));
 	}
 	
-	private void createStringLiteralParser() {
-	}
-	
 	private Parser<Object[]> csplus(Parser<? extends Object> parser) {
-		return Parsers.array(parser, Parsers.array(getOperatorParser(","), parser).many());
+		return Parsers.array(parser, star(Parsers.array(getOperatorParser(","), parser)));
 	}
 	
-	private void createListParser(String nonTerminal, Parser<List<UASMNode>> parser) {
-		createArrayParser(nonTerminal, parser.map(new Map<List<UASMNode>, Object[]>() {
+	private Parser<Object[]> star(Parser<? extends Object> parser) {
+		return parser.many().map(new Map<List<? extends Object>, Object[]>() {
 
 			@Override
-			public Object[] map(List<UASMNode> from) {
+			public Object[] map(List<? extends Object> from) {
 				return from.toArray();
 			}
-		}));
+		});
+	}
+	
+	private Parser<Object[]> plus(Parser<? extends Object> parser) {
+		return parser.many1().map(new Map<List<? extends Object>, Object[]>() {
+
+			@Override
+			public Object[] map(List<? extends Object> from) {
+				return from.toArray();
+			}
+		});
 	}
 	
 	private void createArrayParser(String nonTerminal, Parser<Object[]> parser) {
-		createParser(nonTerminal, parser.map(mapperProvider.getArrayMapper(nonTerminal)));
+		createParser(nonTerminal, parser.map(mapperProvider.getArrayMapper(nonTerminal)), false);
 	}
 	
 	private void createParser(String nonTerminal, Parser<UASMNode> parser) {
+		createParser(nonTerminal, parser, true);
+	}
+	
+	private void createParser(String nonTerminal, Parser<UASMNode> parser, boolean shouldMap) {
 		LinkedList<Parser<UASMNode>> parsers = new LinkedList<Parser<UASMNode>>();
 		parsers.add(parser);
 		parsers.addAll(getAdditionalParsers(nonTerminal));
-		Parser.Reference<UASMNode> ref = Parser.newReference();
-		ref.set(Parsers.longest(parsers).map(mapperProvider.getMapper(nonTerminal)));
-		this.parsers.put(nonTerminal, ref);
+		Parser.Reference<UASMNode> ref = this.parsers.get(nonTerminal);
+		if (shouldMap && mapperProvider.getMapper(nonTerminal) != null)
+			ref.set(Parsers.longest(parsers).map(mapperProvider.getMapper(nonTerminal)));
+		else
+			ref.set(Parsers.longest(parsers));
 	}
 	
 	public void addParser(String nonTerminal, Parser<UASMNode> parser) {
@@ -976,13 +1043,25 @@ public final class UASMParsers {
 	}
 	
 	public Parser<UASMNode> getRootParser() {
-		return getParser("Asm");
+		return getParser("Asm").from(tokenizer, Parsers.or(Scanners.JAVA_LINE_COMMENT, Scanners.JAVA_BLOCK_COMMENT, Scanners.WHITESPACES).skipMany());
 	}
 	
 	public Parser<UASMNode> getIdParser() {
 		if (idParser == null)
 			idParser = Terminals.Identifier.PARSER.token().map(identifierMapper);
 		return idParser;
+	}
+	
+	private Parser<UASMNode> getStringParser() {
+		if (stringParser == null)
+			stringParser = Terminals.StringLiteral.PARSER.token().map(stringMapper);
+		return stringParser;
+	}
+	
+	public Parser<UASMNode> getNumberParser() {
+		if (numberParser == null)
+			numberParser = Terminals.fragment(Tag.DECIMAL).token().map(numberMapper);
+		return numberParser;
 	}
 	
 	public Parser<UASMNode> getOperatorParser(String token) {
@@ -1004,15 +1083,19 @@ public final class UASMParsers {
 	}
 	
 	public static void initialize(MapperProvider mapperProvider) {
-		if (instance != null)
+		if (isInitialized())
 			throw new IllegalStateException("The UASM Parsers have already been initialized.");
 		instance = new UASMParsers(mapperProvider);
 	}
 	
 	public static void initialize(MapperProvider mapperProvider, Set<String> keywords, Set<String> operators, Set<Parser<? extends Object>> lexers) {
-		if (instance != null)
+		if (isInitialized())
 			throw new IllegalStateException("The UASM Parsers have already been initialized.");
 		instance = new UASMParsers(mapperProvider, keywords, operators, lexers);
+	}
+	
+	public static boolean isInitialized() {
+		return instance != null;
 	}
 	
 	public static UASMParsers getInstance() {
