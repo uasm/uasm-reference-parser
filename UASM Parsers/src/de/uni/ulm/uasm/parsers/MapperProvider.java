@@ -10,6 +10,7 @@ public interface MapperProvider {
 	Map<Token, UASMNode> getKeywordMapper();
 	Map<Token, UASMNode> getOperatorMapper();
 	Map<Token, UASMNode> getStringMapper();
+	Map<Token, UASMNode> getCharMapper();
 	Map<Token, UASMNode> getNumberMapper();
 	Map<UASMNode, UASMNode> getMapper(String nonTerminal);
 	Binary<UASMNode> getBinaryOperatorMapper(String operator);

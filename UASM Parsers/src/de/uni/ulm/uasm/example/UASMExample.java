@@ -40,6 +40,10 @@ public class UASMExample {
 			public Map<Object[], UASMNode> getArrayMapper(String nonTerminal) {
 				return new ArrayMapper(nonTerminal);
 			}
+			
+			public Map<Token, UASMNode> getCharMapper() {
+				return new CharMapper();
+			}
 
 			@Override
 			public Map<Token, UASMNode> getStringMapper() {
@@ -144,6 +148,13 @@ public class UASMExample {
 		@Override
 		public UASMNode map(Token from) {
 			return new Node("String", from.toString());
+		}
+	}
+	
+	public static final class CharMapper implements Map<Token, UASMNode> {
+		@Override
+		public UASMNode map(Token from) {
+			return new Node("Char", from.toString());
 		}
 	}
 	

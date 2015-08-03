@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -56,7 +57,6 @@ public final class UASMParsers {
 	}));
 	private static final HashSet<String> OPERATORS = new HashSet<String>(Arrays.asList(new String[] {
 			"(", ")", "{", "}", "[", "]",
-			"\"",
 			",",
 			":=",
 			"<", ">", "<=", ">=", "!=", "=", "memberof", "-", "+", "*", "div", "/", "mod", "^", "and", "or", "xor", "implies", "iff", "not",
@@ -72,9 +72,10 @@ public final class UASMParsers {
 			@Override
 			public Fragment map(String from) {
 				return Tokens.fragment(from, Tag.DECIMAL);
-			}				
+			}
 		}));
 		LEXERS.add(Terminals.StringLiteral.DOUBLE_QUOTE_TOKENIZER);
+		LEXERS.add(Terminals.CharLiteral.SINGLE_QUOTE_TOKENIZER);
 	}
 	private static final HashMap<String, Integer> BINARY_OPERATORS = new HashMap<String, Integer>();
 	private static final HashMap<String, Integer> UNARY_OPERATORS = new HashMap<String, Integer>();
@@ -109,12 +110,14 @@ public final class UASMParsers {
 	private final Map<Token, UASMNode> keywordMapper;
 	private final Map<Token, UASMNode> operatorMapper;
 	private final Map<Token, UASMNode> stringMapper;
+	private final Map<Token, UASMNode> charMapper;
 	private final Map<Token, UASMNode> numberMapper;
 	private final Terminals terminals;
 	private final Parser<Object> tokenizer;
 	private Parser<UASMNode> idParser;
 	private Parser<UASMNode> stringParser;
 	private Parser<UASMNode> numberParser;
+	private Parser<UASMNode> charParser;
 	private HashMap<String, Parser<UASMNode>> keywordParsers = new HashMap<String, Parser<UASMNode>>();
 	private HashMap<String, Parser<UASMNode>> operatorParsers = new HashMap<String, Parser<UASMNode>>();
 	private HashMap<String, List<Parser<UASMNode>>> additionalParsers = new HashMap<String, List<Parser<UASMNode>>>();
@@ -135,6 +138,8 @@ public final class UASMParsers {
 			throw new NullPointerException("The OperatorMapper must not be null.");
 		if (mapperProvider.getStringMapper() == null)
 			throw new NullPointerException("The StringMapper must not be null.");
+		if (mapperProvider.getStringMapper() == null)
+			throw new NullPointerException("The CharMapper must not be null.");
 		if (mapperProvider.getNumberMapper() == null)
 			throw new NullPointerException("The NumberMapper must not be null.");
 		if (additionalKeywords != null)
@@ -148,7 +153,18 @@ public final class UASMParsers {
 		this.keywordMapper = mapperProvider.getKeywordMapper();
 		this.operatorMapper = mapperProvider.getOperatorMapper();
 		this.stringMapper = mapperProvider.getStringMapper();
+		this.charMapper = mapperProvider.getCharMapper();
 		this.numberMapper = mapperProvider.getNumberMapper();
+		
+		// Treat alphabetical operators as keywords to avoid parsing prefixes of keywords as operators (e.g. 'mode' would be parsed as 'mod' 'e')
+		Iterator<String> it = OPERATORS.iterator();
+		while (it.hasNext()) {
+			String operator = it.next();
+			if (Character.isAlphabetic(operator.charAt(0))) {
+				it.remove();
+				KEYWORDS.add(operator);
+			}
+		}
 		
 		terminals = Terminals.caseSensitive(OPERATORS.toArray(new String[OPERATORS.size()]), KEYWORDS.toArray(new String[KEYWORDS.size()]));
 		LinkedList<Parser<? extends Object>> list = new LinkedList<Parser<? extends Object>>();
@@ -770,7 +786,7 @@ public final class UASMParsers {
 											getParser("BooleanLiteral"),
 											getParser("KernelLiteral"),
 											getStringParser(),
-//											getParser("CharLiteral"),
+											getCharParser(),
 											getParser("EnumTerm")));
 	}
 	
@@ -1056,6 +1072,12 @@ public final class UASMParsers {
 		if (stringParser == null)
 			stringParser = Terminals.StringLiteral.PARSER.token().map(stringMapper);
 		return stringParser;
+	}
+	
+	private Parser<UASMNode> getCharParser() {
+		if (charParser == null)
+			charParser = Terminals.CharLiteral.PARSER.token().map(charMapper);
+		return charParser;
 	}
 	
 	public Parser<UASMNode> getNumberParser() {
