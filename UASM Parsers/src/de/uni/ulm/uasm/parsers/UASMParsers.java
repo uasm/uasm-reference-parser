@@ -156,11 +156,11 @@ public final class UASMParsers {
 		this.charMapper = mapperProvider.getCharMapper();
 		this.numberMapper = mapperProvider.getNumberMapper();
 		
-		// Treat alphabetical operators as keywords to avoid parsing prefixes of keywords as operators (e.g. 'mode' would be parsed as 'mod' 'e')
+		// Treat operators consisting of letters as keywords to avoid parsing prefixes of keywords as operators (e.g. 'mode' would be parsed as 'mod' 'e')
 		Iterator<String> it = OPERATORS.iterator();
 		while (it.hasNext()) {
 			String operator = it.next();
-			if (Character.isAlphabetic(operator.charAt(0))) {
+			if (Character.isLetter(operator.charAt(0))) {
 				it.remove();
 				KEYWORDS.add(operator);
 			}
