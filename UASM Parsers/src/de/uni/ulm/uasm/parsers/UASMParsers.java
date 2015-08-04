@@ -47,10 +47,12 @@ public final class UASMParsers {
 			"extend", "as",
 			"iterate", "while",
 			"local",
+			"print",
 			"result", "return",
 			"true", "false", "undef", "self",
 			"exists", "unique", "holds",
 			"pick",
+			"step",
 			"SET", "LIST", "MAP",
 			"ANY", "AGENT",
 			"NUMBER", "INTEGER", "STRING", "CHAR", "BOOLEAN", "RULE"
@@ -63,6 +65,7 @@ public final class UASMParsers {
 			"->", "<-",
 			"?", ":",
 			"@", "|",
+			".."
 	}));
 	private static final HashSet<Parser<? extends Object>> LEXERS = new HashSet<Parser<? extends Object>>();
 	static {
@@ -160,7 +163,7 @@ public final class UASMParsers {
 		Iterator<String> it = OPERATORS.iterator();
 		while (it.hasNext()) {
 			String operator = it.next();
-			if (Character.isLetter(operator.charAt(0))) {
+			if (Character.isLetter(operator.charAt(operator.length() - 1))) {
 				it.remove();
 				KEYWORDS.add(operator);
 			}
@@ -273,6 +276,8 @@ public final class UASMParsers {
 				createTurboReturnRuleParser();
 			else if ("LocalRule".equals(nonTerminal))
 				createLocalRuleParser();
+			else if ("PrintRule".equals(nonTerminal))
+				createPrintRuleParser();
 			else if ("Term".equals(nonTerminal))
 				createTermParser();
 			else if ("BasicTerm".equals(nonTerminal))
@@ -287,8 +292,6 @@ public final class UASMParsers {
 				createVariableTermParser();
 			else if ("LocationTerm".equals(nonTerminal))
 				createLocationTermParser();
-			else if ("Expression".equals(nonTerminal))
-				createExpressionParser();
 			else if ("Literal".equals(nonTerminal))
 				createLiteralParser();
 			else if ("BooleanLiteral".equals(nonTerminal))
@@ -299,6 +302,8 @@ public final class UASMParsers {
 				createForAllTermParser();
 			else if ("ExistsTerm".equals(nonTerminal))
 				createExistsTermParser();
+			else if ("SizeOfEnumerableTerm".equals(nonTerminal))
+				createSizeOfEnumerableTermParser();
 			else if ("PickTerm".equals(nonTerminal))
 				createPickTermParser();
 			else if ("ConditionalTerm".equals(nonTerminal))
@@ -329,6 +334,8 @@ public final class UASMParsers {
 				createBagTermParser();
 			else if ("MapTerm".equals(nonTerminal))
 				createMapTermParser();
+			else if ("NumberRangeTerm".equals(nonTerminal))
+				createNumberRangeTermParser();
 			else if ("IdDomain".equals(nonTerminal))
 				createIdDomainParser();
 			else if ("IdFunction".equals(nonTerminal))
@@ -367,19 +374,19 @@ public final class UASMParsers {
 	}
 	
 	private void createHeaderParser() {
-		createArrayParser("Header", Parsers.array(Parsers.or(	getParser("UseDirective"),
-																getParser("ImportDirective"),
-																star(getParser("ExportDirective")))));
+		createArrayParser("Header", Parsers.array(star(Parsers.or(	getParser("UseDirective"),
+																	getParser("ImportDirective"),
+																	getParser("ExportDirective")))));
 	}
 	
 	private void createUseDirectiveParser() {
 		createArrayParser("UseDirective", Parsers.array(getKeywordParser("use"),
-														getStringParser()));
+														getIdParser()));
 	}
 	
 	private void createImportDirectiveParser() {
 		createArrayParser("ImportDirective", Parsers.array(	getKeywordParser("import"),
-															getStringParser(),
+															getIdParser(),
 															Parsers.array(	getOperatorParser("("),
 																			csplus(Parsers.or(	getParser("IdDomain"),
 																								getParser("IdFunction"),
@@ -389,7 +396,7 @@ public final class UASMParsers {
 	
 	private void createExportDirectiveParser() {
 		createArrayParser("ExportDirective", Parsers.array(	getKeywordParser("export"),
-															getStringParser(),
+															getIdParser(),
 															Parsers.or(	Parsers.array(	getOperatorParser("("),
 																						csplus(Parsers.or(	getParser("IdDomain"),
 																											getParser("IdFunction"),
@@ -541,7 +548,7 @@ public final class UASMParsers {
 	private void createRuleDefinitionParser() {
 		createArrayParser("RuleDefinition", Parsers.array(	getKeywordParser("rule"),
 															getParser("IdRule"),
-															getParser("ParameterDefinition"),
+															getParser("ParameterDefinition").optional(),
 															getOperatorParser("="),
 															getParser("Rule")));
 	}
@@ -590,7 +597,8 @@ public final class UASMParsers {
 										getParser("UpdateRule"),
 										getParser("SkipRule"),
 										getParser("CallRule"),
-										getParser("LocalRule")));
+										getParser("LocalRule"),
+										getParser("PrintRule")));
 	}
 	
 	private void createCallRuleParser() {
@@ -616,7 +624,8 @@ public final class UASMParsers {
 															getKeywordParser("then"),
 															getParser("Rule"),
 															Parsers.array(	getKeywordParser("else"),
-																			getParser("Rule")).optional()));
+																			getParser("Rule")).optional(),
+															getKeywordParser("endif").optional()));
 	}
 	
 	private void createCaseRuleParser() {
@@ -714,10 +723,14 @@ public final class UASMParsers {
 														getParser("Rule")));
 	}
 	
+	private void createPrintRuleParser() {
+		createArrayParser("PrintRule", Parsers.array(	getKeywordParser("print"),
+														getParser("Term")));
+	}
+	
 	@SuppressWarnings("unchecked")
 	private void createBasicTermParser() {
 		createParser("BasicTerm", Parsers.or(	getParser("LocationTerm"),
-//												getParser("SpecialTerm"),
 												getParser("ComprehensionTerm"),
 												getParser("StructureTerm"),
 												getParser("PickTerm"),
@@ -727,11 +740,9 @@ public final class UASMParsers {
 												getParser("ReturnTerm"),
 												getParser("ForAllTerm"),
 												getParser("ExistsTerm"),
+												getParser("SizeOfEnumerableTerm"),
+												getParser("NumberRangeTerm"),
 												getParser("Literal")));
-	}
-	
-	private void createTermParser() {
-		createParser("Term", getParser("Expression"));
 	}
 	
 	private void createFunctionTermParser() {
@@ -746,8 +757,8 @@ public final class UASMParsers {
 	}
 	
 	private void createEnumerableTermParser() {
-		createParser("EnumerableTerm", Parsers.or(	getParser("Domain"),
-													getParser("Term")));
+		createParser("EnumerableTerm", Parsers.or(	getParser("Term"),
+													getParser("Domain")));
 	}
 	
 	private void createVariableTermParser() {
@@ -759,7 +770,7 @@ public final class UASMParsers {
 												getKeywordParser("result")));
 	}
 	
-	private void createExpressionParser() {
+	private void createTermParser() {
 		OperatorTable<UASMNode> table = new OperatorTable<UASMNode>();
 		for (Entry<String, Integer> entry : BINARY_OPERATORS.entrySet())
 			table.infixl(createBinaryOperator(entry.getKey()), entry.getValue());
@@ -770,7 +781,7 @@ public final class UASMParsers {
 																		Parsers.array(	getOperatorParser("("),
 																						getParser("Term"),
 																						getOperatorParser(")")))));
-		createParser("Expression", table.build(getParser("BasicExpression")));
+		createParser("Term", table.build(getParser("BasicExpression")));
 	}
 	
 	private Parser<Binary<UASMNode>> createBinaryOperator(String operator) {
@@ -817,6 +828,12 @@ public final class UASMParsers {
 																				getParser("Term"))),
 														getKeywordParser("with"),
 														getParser("Term")));
+	}
+	
+	private void createSizeOfEnumerableTermParser() {
+		createArrayParser("SizeOfEnumerableTerm", Parsers.array(getOperatorParser("|"),
+																getParser("EnumerableTerm"),
+																getOperatorParser("|")));
 	}
 	
 	private void createPickTermParser() {
@@ -954,6 +971,16 @@ public final class UASMParsers {
 												Parsers.array(	getOperatorParser("{"),
 																getOperatorParser("->"),
 																getOperatorParser("}"))));
+	}
+	
+	private void createNumberRangeTermParser() {
+		createArrayParser("NumberRangeTerm", Parsers.array(	getOperatorParser("["),
+															getParser("Term"),
+															getOperatorParser(".."),
+															getParser("Term"),
+															Parsers.array(	getKeywordParser("step"),
+																			getParser("Term")).optional(),
+															getOperatorParser("]") ));
 	}
 	
 	private void createIdDomainParser() {
