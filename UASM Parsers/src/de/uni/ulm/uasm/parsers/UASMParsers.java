@@ -365,6 +365,9 @@ public final class UASMParsers {
 		return parsers;
 	}
 	
+	/**
+	 * Asm ::= ('asm' | 'asmmodule') Id Header Body
+	 */
 	private void createAsmParser() {
 		createArrayParser("Asm", Parsers.array(	Parsers.or(	getKeywordParser("asm"),
 															getKeywordParser("asmmodule")),
@@ -373,17 +376,26 @@ public final class UASMParsers {
 												getParser("Body")));
 	}
 	
+	/**
+	 * Header ::= (UseDirective | ImportDirective | ExportDirective)*
+	 */
 	private void createHeaderParser() {
 		createArrayParser("Header", Parsers.array(star(Parsers.or(	getParser("UseDirective"),
 																	getParser("ImportDirective"),
 																	getParser("ExportDirective")))));
 	}
 	
+	/**
+	 * UseDirective ::= 'use' Id
+	 */
 	private void createUseDirectiveParser() {
 		createArrayParser("UseDirective", Parsers.array(getKeywordParser("use"),
 														getIdParser()));
 	}
 	
+	/**
+	 * ImportDirective ::= 'import' Id ('(' (IdDomain | IdFunction | IdRule) (',' (IdDomain | IdFunction | IdRule))* ')')?
+	 */
 	private void createImportDirectiveParser() {
 		createArrayParser("ImportDirective", Parsers.array(	getKeywordParser("import"),
 															getIdParser(),
@@ -394,6 +406,9 @@ public final class UASMParsers {
 																			getOperatorParser(")")).optional()));
 	}
 	
+	/**
+	 * ExportDirective ::= 'export' Id ('(' (IdDomain | IdFunction | IdRule) (',' (IdDomain | IdFunction | IdRule))* ')' | '*')?
+	 */
 	private void createExportDirectiveParser() {
 		createArrayParser("ExportDirective", Parsers.array(	getKeywordParser("export"),
 															getIdParser(),
@@ -402,36 +417,49 @@ public final class UASMParsers {
 																											getParser("IdFunction"),
 																											getParser("IdRule"))),
 																						getOperatorParser(")")),
-																		getOperatorParser("*")).optional()
-															));
+																		getOperatorParser("*")).optional()));
 	}
 	
+	/**
+	 * Body ::= Definition* ('exec' IdRule)?
+	 */
 	private void createBodyParser() {
 		createArrayParser("Body",	Parsers.array(	star(getParser("Definition")),
 													Parsers.array(	getKeywordParser("exec"),
 																	getParser("IdRule")).optional()));
 	}
 	
+	/**
+	 * Definition ::= TypeDefinition | FunctionDefinition | RuleDefinition
+	 */
 	private void createDefinitionParser() {
 		createParser("Definition", Parsers.or(	getParser("TypeDefinition"),
 												getParser("FunctionDefinition"),
 												getParser("RuleDefinition")));
 	}
 	
+	/**
+	 * TypeDefinition ::= DomainDefinition | EnumerateDefinition
+	 */
 	private void createTypeDefinitionParser() {
 		createParser("TypeDefinition", Parsers.or(	getParser("DomainDefinition"),
 													getParser("EnumerateDefinition")));
 	}
 	
+	/**
+	 * DomainDefinition ::= 'domain' IdDomain | ('of' DomainParameterDefinition)? InitialDomainDefinition?
+	 */
 	private void createDomainDefinitionParser() {
 		createArrayParser("DomainDefinition", Parsers.array(	getKeywordParser("domain"),
 																getParser("IdDomain"),
 																Parsers.array(	getKeywordParser("of"),
 																				getParser("DomainParameterDefinition")).optional(),
-																getParser("InitialDomainDefinition").optional()
-																));
+																getParser("InitialDomainDefinition").optional()));
 	}
 	
+	/**
+	 * InitialDomainDefinition ::= 'initially' '{' Literal (',' Literal)* '}'
+	 */
 	private void createInitialDomainDefinitionParser() {
 		createArrayParser("InitialDomainDefinition", Parsers.array(	getKeywordParser("initially"),
 																	getOperatorParser("{"),
@@ -439,6 +467,9 @@ public final class UASMParsers {
 																	getOperatorParser("}")));
 	}
 	
+	/**
+	 * EnumerateDefinition ::= 'enum' Id '=' '{' EnumTerm (',' EnumTerm)* '}'
+	 */
 	private void createEnumerateDefinitionParser() {
 		createArrayParser("EnumerateDefinition", Parsers.array(	getKeywordParser("enum"),
 																getIdParser(),
@@ -448,11 +479,17 @@ public final class UASMParsers {
 																getOperatorParser("}")));
 	}
 	
+	/**
+	 * DomainParameterDefinition ::= Domain ParameterDefinition
+	 */
 	private void createDomainParameterDefinitionParser() {
 		createArrayParser("DomainParameterDefinition", Parsers.array(	getParser("Domain"),
 																		getParser("ParameterDefinition")));
 	}
 	
+	/**
+	 * ParameterDefinition ::= '(' (Id 'in' Domain | Id | Domain) (',' (Id 'in' Domain | Id | Domain))* ')'
+	 */
 	private void createParameterDefinitionParser() {
 		createArrayParser("ParameterDefinition", Parsers.array(	getOperatorParser("("),
 																csplus(Parsers.or(	Parsers.array(	getIdParser(),
@@ -463,6 +500,9 @@ public final class UASMParsers {
 																getOperatorParser(")")));
 	}
 	
+	/**
+	 * ControlledFunction ::= ('controlled' | 'function' | 'controlled function') IdFunction ParameterDefinition? ('->' Domain)? ('initially' InitialFunctionDefinition)?
+	 */
 	private void createControlledFunctionParser() {
 		createArrayParser("ControlledFunction", Parsers.array(	Parsers.or(	getKeywordParser("controlled"),
 																			getKeywordParser("function"),
@@ -476,6 +516,9 @@ public final class UASMParsers {
 																				getParser("InitialFunctionDefinition")).optional()));
 	}
 	
+	/**
+	 * StaticFunction ::= 'static' 'function'? IdFunction ParameterDefinition? ('->' Domain)? ('always' InitialFunctionDefinition)
+	 */
 	private void createStaticFunctionParser() {
 		createArrayParser("StaticFunction", Parsers.array(	getKeywordParser("static"),
 															getKeywordParser("function").optional(),
@@ -487,6 +530,9 @@ public final class UASMParsers {
 																			getParser("InitialFunctionDefinition"))));
 	}
 	
+	/**
+	 * DerivedFunction ::= 'derived' 'function'? IdFunction ParameterDefinition? ('->' Domain)? '=' InitialFunctionDefinition
+	 */
 	private void createDerivedFunctionParser() {
 		createArrayParser("DerivedFunction", Parsers.array(	getKeywordParser("derived"),
 															getKeywordParser("function").optional(),
@@ -498,17 +544,21 @@ public final class UASMParsers {
 																			getParser("InitialFunctionDefinition"))));
 	}
 	
+	/**
+	 * MonitoredFunction ::= 'monitored' 'function'? IdFunction ParameterDefinition? ('->' Domain)?
+	 */
 	private void createMonitoredFunctionParser() {
 		createArrayParser("MonitoredFunction", Parsers.array(	getKeywordParser("monitored"),
 																getKeywordParser("function").optional(),
 																getParser("IdFunction"),
 																getParser("ParameterDefinition").optional(),
 																Parsers.array(	getOperatorParser("->"),
-																				getParser("Domain")).optional(),
-																Parsers.array(	getKeywordParser("initially"),
-																				getParser("InitialFunctionDefinition"))));
+																				getParser("Domain")).optional()));
 	}
 	
+	/**
+	 * SharedFunction ::= 'shared' 'function'? IdFunction ParameterDefinition? ('->' Domain)? ('initially' InitialFunctionDefinition)?
+	 */
 	private void createSharedFunctionParser() {
 		createArrayParser("SharedFunction", Parsers.array(	getKeywordParser("shared"),
 															getKeywordParser("function").optional(),
@@ -517,9 +567,12 @@ public final class UASMParsers {
 															Parsers.array(	getOperatorParser("->"),
 																			getParser("Domain")).optional(),
 															Parsers.array(	getKeywordParser("initially"),
-																			getParser("InitialFunctionDefinition"))));
+																			getParser("InitialFunctionDefinition")).optional()));
 	}
 	
+	/**
+	 * OutFunction ::= 'out' 'function'? IdFunction ParameterDefinition? ('->' Domain)? ('initially' InitialFunctionDefinition)?
+	 */
 	private void createOutFunctionParser() {
 		createArrayParser("OutFunction", Parsers.array(	getKeywordParser("out"),
 														getKeywordParser("function").optional(),
@@ -528,14 +581,20 @@ public final class UASMParsers {
 														Parsers.array(	getOperatorParser("->"),
 																		getParser("Domain")).optional(),
 														Parsers.array(	getKeywordParser("initially"),
-																		getParser("InitialFunctionDefinition"))));
+																		getParser("InitialFunctionDefinition")).optional()));
 	}
 	
+	/**
+	 * InitialFunctionDefinition ::= 'from'? Term
+	 */
 	private void createInitialFunctionDefinitionParser() {
 		createArrayParser("InitialFunctionDefinition", Parsers.array(	getKeywordParser("from").optional(),
 																		getParser("Term")));
 	}
 	
+	/**
+	 * FunctionDefinition ::= ControlledFunction | StaticFunction | DerivedFunction | MonitoredFunction | SharedFunction | OutFunction
+	 */
 	private void createFunctionDefinitionParser() {
 		createParser("FunctionDefinition", Parsers.or(	getParser("ControlledFunction"),
 														getParser("StaticFunction"),
@@ -545,6 +604,9 @@ public final class UASMParsers {
 														getParser("OutFunction")));
 	}
 	
+	/**
+	 * RuleDefinition ::= 'rule' IdRule ParameterDefinition '=' Rule
+	 */
 	private void createRuleDefinitionParser() {
 		createArrayParser("RuleDefinition", Parsers.array(	getKeywordParser("rule"),
 															getParser("IdRule"),
@@ -553,6 +615,9 @@ public final class UASMParsers {
 															getParser("Rule")));
 	}
 	
+	/**
+	 * ParBlock ::= 'par' Rule+ 'endpar' | '{' Rule+ '}'
+	 */
 	private void createParBlockParser() {
 		createArrayParser("ParBlock", Parsers.or(	Parsers.array(	getKeywordParser("par"),
 																	plus(getParser("Rule")),
@@ -562,15 +627,21 @@ public final class UASMParsers {
 																	getOperatorParser("}"))));
 	}
 	
+	/**
+	 * SeqBlock ::= 'seq' Rule+ 'endseq' | '[' Rule+ ']'
+	 */
 	private void createSeqBlockParser() {
-		createArrayParser("SeqBlock", Parsers.or(Parsers.array(getKeywordParser("seq"),
-																plus(getParser("Rule")),
-																getKeywordParser("endseq")),
-													Parsers.array(getOperatorParser("["),
-																plus(getParser("Rule")),
-																getOperatorParser("]"))));
+		createArrayParser("SeqBlock", Parsers.or(	Parsers.array(	getKeywordParser("seq"),
+																	plus(getParser("Rule")),
+																	getKeywordParser("endseq")),
+													Parsers.array(	getOperatorParser("["),
+																	plus(getParser("Rule")),
+																	getOperatorParser("]"))));
 	}
 	
+	/**
+	 * SeqNext ::= 'seq' Rule ('next' Rule)+ ('endseq')?
+	 */
 	private void createSeqNextParser() {
 		createArrayParser("SeqNext", Parsers.array(	getKeywordParser("seq"),
 													getParser("Rule"),
@@ -579,6 +650,9 @@ public final class UASMParsers {
 													getKeywordParser("endseq").optional()));
 	}
 	
+	/**
+	 * Rule ::= ParBlock | SeqBlock | CaseRule | ChooseRule | ConditionalRule | ExtendRule | ForAllRule | ImportRule | IterateRule | LetRule | TurboReturnRule | WhileRule | UpdateRule | SkipRule | CallRule | LocalRule | PrintRule
+	 */
 	@SuppressWarnings("unchecked")
 	private void createRuleParser() {
 		createParser("Rule", Parsers.or(getParser("ParBlock"),
@@ -601,6 +675,9 @@ public final class UASMParsers {
 										getParser("PrintRule")));
 	}
 	
+	/**
+	 * CallRule ::= IdRule ('(' Term (',' Term)* ')')?
+	 */
 	private void createCallRuleParser() {
 		createArrayParser("CallRule", Parsers.array(getParser("IdRule"),
 													Parsers.array(	getOperatorParser("("),
@@ -608,16 +685,25 @@ public final class UASMParsers {
 																	getOperatorParser(")")).optional()));
 	}
 	
+	/**
+	 * SkipRule ::= 'skip'
+	 */
 	private void createSkipRuleParser() {
 		createParser("SkipRule", getKeywordParser("skip"));
 	}
 	
+	/**
+	 * UpdateRule ::= LocationTerm ':=' Term
+	 */
 	private void createUpdateRuleParser() {
 		createArrayParser("UpdateRule", Parsers.array(	getParser("LocationTerm"),
 														getOperatorParser(":="),
 														getParser("Term")));
 	}
 	
+	/**
+	 * ConditionalRule ::= 'if' Term 'then' Rule ('else' Rule)?
+	 */
 	private void createConditionalRuleParser() {
 		createArrayParser("ConditionalRule", Parsers.array(	getKeywordParser("if"),
 															getParser("Term"),
@@ -628,6 +714,9 @@ public final class UASMParsers {
 															getKeywordParser("endif").optional()));
 	}
 	
+	/**
+	 * CaseRule ::= 'case' Term 'of' (Term ':' Rule)+ ('otherwise' Rule)? 'endcase'
+	 */
 	private void createCaseRuleParser() {
 		createArrayParser("CaseRule", Parsers.array(getKeywordParser("case"),
 													getParser("Term"),
@@ -640,6 +729,9 @@ public final class UASMParsers {
 													getKeywordParser("endcase")));
 	}
 	
+	/**
+	 * ChooseRule ::= 'choose' VariableTerm 'in' EnumerableTerm (',' VariableTerm 'in' EnumerableTerm)* ('with' Term)? 'do' Rule ('ifnone' Rule)? 
+	 */
 	private void createChooseRuleParser() {
 		createArrayParser("ChooseRule", Parsers.array(	getKeywordParser("choose"),
 														csplus(Parsers.array(	getParser("VariableTerm"),
@@ -653,6 +745,9 @@ public final class UASMParsers {
 																		getParser("Rule")).optional()));
 	}
 	
+	/**
+	 * ForAllRule ::= 'forall' VariableTerm 'in' EnumerableTerm (',' VariableTerm 'in' EnumerableTerm)* ('with' Term)? 'do' Rule ('ifnone' Rule)?
+	 */
 	private void createForAllRuleParser() {
 		createArrayParser("ForAllRule", Parsers.array(	getKeywordParser("forall"),
 														csplus(Parsers.array(	getParser("VariableTerm"),
@@ -666,6 +761,9 @@ public final class UASMParsers {
 																		getParser("Rule")).optional()));
 	}
 	
+	/**
+	 * LetRule ::= 'let' VariableTerm 'in' Term (',' VariableTerm '=' Term)* 'in' Rule
+	 */
 	private void createLetRuleParser() {
 		createArrayParser("LetRule", Parsers.array(	getKeywordParser("let"),
 													csplus(Parsers.array(	getParser("VariableTerm"),
@@ -675,6 +773,9 @@ public final class UASMParsers {
 													getParser("Rule")));
 	}
 	
+	/**
+	 * ExtendRule ::= 'extend' ExtendableDomain 'with' VariableTerm (',' VariableTerm)* ('as' VariableTerm)? 'do' Rule
+	 */
 	private void createExtendRuleParser() {
 		createArrayParser("ExtendRule", Parsers.array(	getKeywordParser("extend"),
 														getParser("ExtendableDomain"),
@@ -686,6 +787,9 @@ public final class UASMParsers {
 														getParser("Rule")));
 	}
 	
+	/**
+	 * ImportRule ::= 'import' VariableTerm 'do' Rule
+	 */
 	private void createImportRuleParser() {
 		createArrayParser("ImportRule", Parsers.array(	getKeywordParser("import"),
 														getParser("VariableTerm"),
@@ -693,11 +797,17 @@ public final class UASMParsers {
 														getParser("Rule")));
 	}
 	
+	/**
+	 * IterateRule ::= 'iterate' Rule
+	 */
 	private void createIterateRuleParser() {
 		createArrayParser("IterateRule", Parsers.array(	getKeywordParser("iterate"),
 														getParser("Rule")));
 	}
 	
+	/**
+	 * WhileRule ::= 'while' Term 'do' Rule
+	 */
 	private void createWhileRuleParser() {
 		createArrayParser("WhileRule", Parsers.array(	getKeywordParser("while"),
 														getParser("Term"),
@@ -705,12 +815,18 @@ public final class UASMParsers {
 														getParser("Rule")));
 	}
 	
+	/**
+	 * TurboReturnRule ::= LocationTerm '<-' Rule
+	 */
 	private void createTurboReturnRuleParser() {
 		createArrayParser("TurboReturnRule", Parsers.array(	getParser("LocationTerm"),
 															getOperatorParser("<-"),
 															getParser("Rule")));
 	}
 	
+	/**
+	 * LocalRule ::= 'local' Id ParameterDefinition? ('->' Domain)? ('initially' InitialFunctionDefinition)? (',' Id ParameterDefinition? ('->' Domain)? ('initially' InitialFunctionDefinition)?)* 'in' Rule
+	 */
 	private void createLocalRuleParser() {
 		createArrayParser("LocalRule", Parsers.array(	getKeywordParser("local"),
 														csplus(Parsers.array(	getIdParser(),
@@ -723,11 +839,17 @@ public final class UASMParsers {
 														getParser("Rule")));
 	}
 	
+	/**
+	 * PrintRule ::= 'print' Term
+	 */
 	private void createPrintRuleParser() {
 		createArrayParser("PrintRule", Parsers.array(	getKeywordParser("print"),
 														getParser("Term")));
 	}
 	
+	/**
+	 * BasicTerm ::= LocationTerm | ComprehensionTerm | StructureTerm | PickTerm | ConditionalTerm | CaseTerm | RuleAsTerm | ReturnTerm | ForAllTerm | ExistsTerm | SizeOfEnumerableTerm | NumberRangeTerm | Literal
+	 */
 	@SuppressWarnings("unchecked")
 	private void createBasicTermParser() {
 		createParser("BasicTerm", Parsers.or(	getParser("LocationTerm"),
@@ -745,6 +867,9 @@ public final class UASMParsers {
 												getParser("Literal")));
 	}
 	
+	/**
+	 * FunctionTerm ::= IdFunction ('(' Term ')')?
+	 */
 	private void createFunctionTermParser() {
 		createArrayParser("FunctionTerm", Parsers.array(getParser("IdFunction"),
 														Parsers.array(	getOperatorParser("("),
@@ -752,24 +877,40 @@ public final class UASMParsers {
 																		getOperatorParser(")")).optional()));
 	}
 	
+	/**
+	 * EnumTerm ::= Id
+	 */
 	private void createEnumTermParser() {
 		createParser("EnumTerm", getIdParser());
 	}
 	
+	/**
+	 * EnumerableTerm ::= Term | Domain
+	 */
 	private void createEnumerableTermParser() {
 		createParser("EnumerableTerm", Parsers.or(	getParser("Term"),
 													getParser("Domain")));
 	}
 	
+	/**
+	 * VariableTerm ::= IdFunction
+	 */
 	private void createVariableTermParser() {
 		createParser("VariableTerm", getParser("IdFunction"));
 	}
 	
+	/**
+	 * LocationTerm ::= FunctionTerm | 'result'
+	 */
 	private void createLocationTermParser() {
 		createParser("LocationTerm", Parsers.or(getParser("FunctionTerm"),
 												getKeywordParser("result")));
 	}
 	
+	/**
+	 * Term ::= BasicExpression BinaryOperator BasicExpression | UnaryOperator BasicExpression
+	 * BasicExpression ::= BasicTerm | '(' Term ')'
+	 */
 	private void createTermParser() {
 		OperatorTable<UASMNode> table = new OperatorTable<UASMNode>();
 		for (Entry<String, Integer> entry : BINARY_OPERATORS.entrySet())
@@ -792,6 +933,9 @@ public final class UASMParsers {
 		return terminals.token(operator).retn(mapperProvider.getUnaryOperatorMapper(operator));
 	}
 	
+	/**
+	 * Literal ::= NumberLiteral | BooleanLiteral | KernelLiteral | StringLiteral | CharLiteral | EnumTerm
+	 */
 	private void createLiteralParser() {
 		createParser("Literal", Parsers.or(	getNumberParser(),
 											getParser("BooleanLiteral"),
@@ -801,16 +945,25 @@ public final class UASMParsers {
 											getParser("EnumTerm")));
 	}
 	
+	/**
+	 * BooleanLiteral ::= 'true' | 'false'
+	 */
 	private void createBooleanLiteralParser() {
 		createParser("BooleanLiteral", Parsers.or(	getKeywordParser("true"),
 													getKeywordParser("false")));
 	}
 	
+	/**
+	 * KernelLiteral ::= 'undef' | 'self'
+	 */
 	private void createKernelLiteralParser() {
 		createParser("KernelLiteral", Parsers.or(	getKeywordParser("undef"),
 													getKeywordParser("self")));
 	}
 	
+	/**
+	 * ForAllTerm ::= 'forall' VariableTerm 'in' Term (',' VariableTerm 'in' Term)* 'holds' Term
+	 */
 	private void createForAllTermParser() {
 		createArrayParser("ForAllTerm", Parsers.array(	getKeywordParser("forall"),
 														csplus(Parsers.array(	getParser("VariableTerm"),
@@ -820,6 +973,9 @@ public final class UASMParsers {
 														getParser("Term")));
 	}
 	
+	/**
+	 * ExistsTerm ::= 'exists' 'unique'? VariableTerm 'in' Term (',' VariableTerm 'in' Term)* 'with' Term
+	 */
 	private void createExistsTermParser() {
 		createArrayParser("ExistsTerm", Parsers.array(	getKeywordParser("exists"),
 														getKeywordParser("unique").optional(),
@@ -830,12 +986,18 @@ public final class UASMParsers {
 														getParser("Term")));
 	}
 	
+	/**
+	 * SizeOfEnumerableTerm ::= '|' EnumerableTerm '|'
+	 */
 	private void createSizeOfEnumerableTermParser() {
 		createArrayParser("SizeOfEnumerableTerm", Parsers.array(getOperatorParser("|"),
 																getParser("EnumerableTerm"),
 																getOperatorParser("|")));
 	}
 	
+	/**
+	 * PickTerm ::= 'pick' VariableTerm 'in' EnumerableTerm ('with' Term)?
+	 */
 	private void createPickTermParser() {
 		createArrayParser("PickTerm", Parsers.array(getKeywordParser("pick"),
 													getParser("VariableTerm"),
@@ -845,6 +1007,9 @@ public final class UASMParsers {
 																	getParser("Term")).optional()));
 	}
 	
+	/**
+	 * ConditionalTerm ::= 'if' Term 'then' Term 'else' Term
+	 */
 	private void createConditionalTermParser() {
 		createArrayParser("ConditionalTerm", Parsers.array(	getKeywordParser("if"),
 																		getParser("Term"),
@@ -854,23 +1019,32 @@ public final class UASMParsers {
 																		getParser("Term")));
 	}
 	
+	/**
+	 * CaseTerm ::= 'case' Term 'of' (Term ':' Term)+ ('otherwise' Term)? 'endcase'
+	 */
 	private void createCaseTermParser() {
 		createArrayParser("CaseTerm", Parsers.array(getKeywordParser("case"),
 													getParser("Term"),
 													getKeywordParser("of"),
-													Parsers.array(	getParser("Term"),
-																	getOperatorParser(":"),
-																	plus(getParser("Term"))),
+													plus(Parsers.array(	getParser("Term"),
+																		getOperatorParser(":"),
+																		getParser("Term"))),
 													Parsers.array(	getKeywordParser("otherwise"),
 																	getParser("Term")).optional(),
 													getKeywordParser("endcase")));
 	}
 	
+	/**
+	 * RuleAsTerm ::= '@' IdRule
+	 */
 	private void createRuleAsTermParser() {
 		createArrayParser("RuleAsTerm", Parsers.array(	getOperatorParser("@"),
 														getParser("IdRule")));
 	}
 	
+	/**
+	 * ReturnTerm ::= 'return' VariableTerm 'in' Rule
+	 */
 	private void createReturnTermParser() {
 		createArrayParser("ReturnTerm", Parsers.array(	getKeywordParser("return"),
 														getParser("VariableTerm"),
@@ -878,6 +1052,9 @@ public final class UASMParsers {
 														getParser("Rule")));
 	}
 	
+	/**
+	 * ComprehensionTerm ::= SetComprehensionTerm | ListComprehensionTerm | MapComprehensionTerm | BagComprehensionTerm
+	 */
 	private void createComprehensionTermParser() {
 		createParser("ComprehensionTerm", Parsers.or(	getParser("SetComprehensionTerm"),
 														getParser("ListComprehensionTerm"),
@@ -885,6 +1062,9 @@ public final class UASMParsers {
 														getParser("BagComprehensionTerm")));
 	}
 	
+	/**
+	 * SetComprehensionTerm ::= '{' Term '|' VariableTerm 'in' EnumerableTerm (',' VariableTerm 'in' EnumerableTerm)* ('with' Term)? '}'
+	 */
 	private void createSetComprehensionTermParser() {
 		createArrayParser("SetComprehensionTerm", Parsers.array(getOperatorParser("{"),
 																getParser("Term"),
@@ -896,6 +1076,9 @@ public final class UASMParsers {
 																getOperatorParser("}")));
 	}
 	
+	/**
+	 * ListComprehensionTerm ::= '[' Term '|' VariableTerm 'in' EnumerableTerm (',' VariableTerm 'in' EnumerableTerm)* ('with' Term)? ']'
+	 */
 	private void createListComprehensionTermParser() {
 		createArrayParser("ListComprehensionTerm", Parsers.array(	getOperatorParser("["),
 																	getParser("Term"),
@@ -907,6 +1090,9 @@ public final class UASMParsers {
 																	getOperatorParser("]")));
 	}
 	
+	/**
+	 * BagComprehensionTerm ::= '<' Term '|' VariableTerm 'in' EnumerableTerm (',' VariableTerm 'in' EnumerableTerm)* ('with' Term)? '>'
+	 */
 	private void createBagComprehensionTermParser() {
 		createArrayParser("BagComprehensionTerm", Parsers.array(getOperatorParser("<"),
 																getParser("Term"),
@@ -918,11 +1104,14 @@ public final class UASMParsers {
 																getOperatorParser(">")));
 	}
 	
+	/**
+	 * MapComprehensionTerm ::= '{' Term '->' Term '|' VariableTerm 'in' EnumerableTerm (',' VariableTerm 'in' EnumerableTerm)* ('with' Term)? '}'
+	 */
 	private void createMapComprehensionTermParser() {
 		createArrayParser("MapComprehensionTerm", Parsers.array(getOperatorParser("{"),
-																Parsers.array(	getParser("Term"),
-																				getOperatorParser("->"),
-																				getParser("Term")),
+																getParser("Term"),
+																getOperatorParser("->"),
+																getParser("Term"),
 																getOperatorParser("|"),
 																csplus(Parsers.array(	getParser("VariableTerm"),
 																						getKeywordParser("in"),
@@ -931,6 +1120,9 @@ public final class UASMParsers {
 																getOperatorParser("}")));
 	}
 	
+	/**
+	 * StructureTerm ::= SetTerm | ListTerm | BagTerm | MapTerm
+	 */
 	private void createStructureTermParser() {
 		createParser("StructureTerm", Parsers.or(	getParser("SetTerm"),
 													getParser("ListTerm"),
@@ -938,6 +1130,9 @@ public final class UASMParsers {
 													getParser("MapTerm")));
 	}
 	
+	/**
+	 * SetTerm ::= ('{' Term (',' Term)* '}') | ('{' '}') 
+	 */
 	private void createSetTermParser() {
 		createArrayParser("SetTerm", Parsers.or(Parsers.array(	getOperatorParser("{"),
 																csplus(getParser("Term")),
@@ -946,6 +1141,9 @@ public final class UASMParsers {
 																				getOperatorParser("}"))));
 	}
 	
+	/**
+	 * ListTerm ::= ('[' Term (',' Term)* ']') | ('[' ']') 
+	 */
 	private void createListTermParser() {
 		createArrayParser("ListTerm", Parsers.or(Parsers.array(	getOperatorParser("["),
 																csplus(getParser("Term")),
@@ -954,6 +1152,9 @@ public final class UASMParsers {
 																				getOperatorParser("]"))));
 	}
 	
+	/**
+	 * SetTerm ::= ('<' Term (',' Term)* '>') | ('<' '>') 
+	 */
 	private void createBagTermParser() {
 		createArrayParser("BagTerm", Parsers.or(Parsers.array(	getOperatorParser("<"),
 																csplus(getParser("Term")),
@@ -962,6 +1163,9 @@ public final class UASMParsers {
 																				getOperatorParser(">"))));
 	}
 	
+	/**
+	 * MapTerm ::= ('{' Term '->' Term (',' Term '->' Term)* '}') | ('{' '->' '}')
+	 */
 	private void createMapTermParser() {
 		createArrayParser("MapTerm", Parsers.or(Parsers.array(	getOperatorParser("{"),
 																csplus(Parsers.array(	getParser("Term"),
@@ -973,6 +1177,9 @@ public final class UASMParsers {
 																getOperatorParser("}"))));
 	}
 	
+	/**
+	 * NumberRangeTerm ::= '[' Term '..' Term ('step' Term)? ']'
+	 */
 	private void createNumberRangeTermParser() {
 		createArrayParser("NumberRangeTerm", Parsers.array(	getOperatorParser("["),
 															getParser("Term"),
@@ -980,27 +1187,42 @@ public final class UASMParsers {
 															getParser("Term"),
 															Parsers.array(	getKeywordParser("step"),
 																			getParser("Term")).optional(),
-															getOperatorParser("]") ));
+															getOperatorParser("]")));
 	}
 	
+	/**
+	 * IdDomain ::= Id
+	 */
 	private void createIdDomainParser() {
 		createParser("IdDomain", getIdParser());
 	}
 	
+	/**
+	 * IdFunction ::= Id
+	 */
 	private void createIdFunctionParser() {
 		createParser("IdFunction", getIdParser());
 	}
 	
+	/**
+	 * IdRule ::= Id
+	 */
 	private void createIdRuleParser() {
 		createParser("IdRule", getIdParser());
 	}
 	
+	/**
+	 * Domain ::= StructuredDomain | BasicDomain | ExtendableDomain
+	 */
 	private void createDomainParser() {
 		createParser("Domain", Parsers.or(	getParser("StructuredDomain"),
 											getParser("BasicDomain"),
 											getParser("ExtendableDomain")));
 	}
 	
+	/**
+	 * StructuredDomain ::= ('SET' ('(' Domain ')')?) | ('LIST' ('(' Domain ')')?) | ('MAP' ('(' Domain ')')?)
+	 */
 	private void createStructuredDomainParser() {
 		createArrayParser("StructuredDomain", Parsers.or(	Parsers.array(	getKeywordParser("SET"),
 																			Parsers.array(	getKeywordParser("("),
@@ -1016,12 +1238,18 @@ public final class UASMParsers {
 																							getKeywordParser(")")).optional())));
 	}
 	
+	/**
+	 * ExtendableDomain ::= 'ANY' | 'AGENT' | IdDomain
+	 */
 	private void createExtendableDomainParser() {
 		createParser("ExtendableDomain", Parsers.or(getKeywordParser("ANY"),
 													getKeywordParser("AGENT"),
 													getParser("IdDomain")));
 	}
 	
+	/**
+	 * BasicDomain ::= 'NUMBER' | 'INTEGER' | 'STRING' | 'CHAR' | 'BOOLEAN' | 'RULE'
+	 */
 	private void createBasicDomainParser() {
 		createParser("BasicDomain", Parsers.or(	getKeywordParser("NUMBER"),
 												getKeywordParser("INTEGER"),
