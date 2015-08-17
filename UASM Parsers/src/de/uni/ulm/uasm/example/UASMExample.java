@@ -6,66 +6,72 @@ import org.codehaus.jparsec.functors.Binary;
 import org.codehaus.jparsec.functors.Map;
 import org.codehaus.jparsec.functors.Unary;
 
-import de.uni.ulm.uasm.parsers.MapperProvider;
-import de.uni.ulm.uasm.parsers.UASMNode;
+import de.uni.ulm.uasm.parsers.ParseMapProvider;
 import de.uni.ulm.uasm.parsers.UASMParsers;
 
+/**
+ * An example for the use of the UASM Parsers
+ * 
+ * @author Michael Stegmaier
+ *
+ */
 public class UASMExample {
 	private static boolean flat;
+	private static UASMParsers<Node> parsers;
 	
 	public static void main(String[] args) {
-		UASMParsers.initialize(new MapperProvider() {
+		parsers = new UASMParsers<Node>(new ParseMapProvider<Node>() {
 			
 			@Override
-			public Map<Token, UASMNode> getOperatorMapper() {
-				return new OperatorMapper();
+			public Map<Token, Node> getOperatorMap() {
+				return new OperatorMap();
 			}
 			
 			@Override
-			public Map<UASMNode, UASMNode> getMapper(String nonTerminal) {
-				return new NodeMapper(nonTerminal);
+			public Map<Node, Node> getNodeMap(String nonTerminal) {
+				return new NodeMap(nonTerminal);
 			}
 			
 			@Override
-			public Map<Token, UASMNode> getKeywordMapper() {
-				return new KeywordMapper();
+			public Map<Token, Node> getKeywordMap() {
+				return new KeywordMap();
 			}
 			
 			@Override
-			public Map<Token, UASMNode> getIdentifierMapper() {
-				return new IdentifierMapper();
+			public Map<Token, Node> getIdentifierMap() {
+				return new IdentifierMap();
 			}
 
 			@Override
-			public Map<Object[], UASMNode> getArrayMapper(String nonTerminal) {
-				return new ArrayMapper(nonTerminal);
+			public Map<Object[], Node> getArrayMap(String nonTerminal) {
+				return new NodeWithChildrenMap(nonTerminal);
 			}
 			
-			public Map<Token, UASMNode> getCharMapper() {
-				return new CharMapper();
+			public Map<Token, Node> getCharMap() {
+				return new CharMap();
 			}
 
 			@Override
-			public Map<Token, UASMNode> getStringMapper() {
-				return new StringMapper();
+			public Map<Token, Node> getStringMap() {
+				return new StringMap();
 			}
 
 			@Override
-			public Map<Token, UASMNode> getNumberMapper() {
-				return new NumberMapper();
+			public Map<Token, Node> getNumberMap() {
+				return new NumberMap();
 			}
 			
 			@Override
-			public Binary<UASMNode> getBinaryOperatorMapper(String operator) {
-				return new BinaryOperatorMapper(operator);
+			public Binary<Node> getBinaryOperatorMap(String operator) {
+				return new BinaryOperatorMap(operator);
 			}
 			
 			@Override
-			public Unary<UASMNode> getUnaryOperatorMapper(String operator) {
-				return new UnaryOperatorMapper(operator);
+			public Unary<Node> getUnaryOperatorMap(String operator) {
+				return new UnaryOperatorMap(operator);
 			}
 		});
-		Parser<UASMNode> parser = UASMParsers.getInstance().getRootParser();
+		Parser<Node> parser = parsers.getRootParser();
 		String spec = "asm example\n"+
 				"controlled counter -> Integer initially 0\n"+
 				"controlled a -> Integer initially counter\n"+
@@ -75,8 +81,10 @@ public class UASMExample {
 				     "if counter >= 10 then\n"+
 				      "a := (a+1)*2\n"+
 				 "endpar\n";
+		System.out.println("Regular Tree:");
 		printTree((Node)parser.parse(spec));
 		flat = true;
+		System.out.println("\nFlattened Tree:");
 		printTree((Node)parser.parse(spec));
 	}
 	
@@ -92,106 +100,119 @@ public class UASMExample {
 			printTree(child, indentation + 1);
 	}
 	
-	public static final class IdentifierMapper implements Map<Token, UASMNode> {
+	public static final class IdentifierMap implements Map<Token, Node> {
 		@Override
-		public UASMNode map(Token from) {
-			return new Node("ID", from.toString());
+		public Node map(Token from) {
+			return new Node("ID", from.toString(), from.index());
 		}
 	}
 	
-	public static final class KeywordMapper implements Map<Token, UASMNode> {
+	public static final class KeywordMap implements Map<Token, Node> {
 		@Override
-		public UASMNode map(Token from) {
-			return new Node("Keyword", from.toString());
+		public Node map(Token from) {
+			return new Node("Keyword", from.toString(), from.index());
 		}
 	}
 	
-	public static final class OperatorMapper implements Map<Token, UASMNode> {
+	public static final class OperatorMap implements Map<Token, Node> {
 		@Override
-		public UASMNode map(Token from) {
-			return new Node("Operator", from.toString());
+		public Node map(Token from) {
+			return new Node("Operator", from.toString(), from.index());
 		}
 	}
 	
-	public static final class BinaryOperatorMapper implements Binary<UASMNode> {
+	public static final class BinaryOperatorMap implements Binary<Node> {
 		private String operator;
 		
-		public BinaryOperatorMapper(String operator) {
+		public BinaryOperatorMap(String operator) {
 			this.operator = operator;
 		}
 		
 		@Override
-		public UASMNode map(UASMNode a, UASMNode b) {
-			Node node = new Node("BinaryOperator", operator);
-			node.addChild((Node)a);
-			node.addChild((Node)b);
+		public Node map(Node a, Node b) {
+			Node node = new Node("BinaryOperator", operator, a.getPosition());
+			node.addChild(a);
+			node.addChild(b);
 			return node;
 		}
 	};
 	
-	public static final class UnaryOperatorMapper implements Unary<UASMNode> {
+	public static final class UnaryOperatorMap implements Unary<Node> {
 		private String operator;
 		
-		public UnaryOperatorMapper(String operator) {
+		public UnaryOperatorMap(String operator) {
 			this.operator = operator;
 		}
 
 		@Override
-		public UASMNode map(UASMNode from) {
-			Node node = new Node("UnaryOperator", operator);
+		public Node map(Node from) {
+			Node node = new Node("UnaryOperator", operator, from.getPosition());
 			node.addChild((Node)from);
 			return node;
 		}
 	};
 	
-	public static final class StringMapper implements Map<Token, UASMNode> {
+	public static final class StringMap implements Map<Token, Node> {
 		@Override
-		public UASMNode map(Token from) {
-			return new Node("String", from.toString());
+		public Node map(Token from) {
+			return new Node("String", from.toString(), from.index());
 		}
 	}
 	
-	public static final class CharMapper implements Map<Token, UASMNode> {
+	public static final class CharMap implements Map<Token, Node> {
 		@Override
-		public UASMNode map(Token from) {
-			return new Node("Char", from.toString());
+		public Node map(Token from) {
+			return new Node("Char", from.toString(), from.index());
 		}
 	}
 	
-	public static final class NumberMapper implements Map<Token, UASMNode> {
+	public static final class NumberMap implements Map<Token, Node> {
 		@Override
-		public UASMNode map(Token from) {
-			return new Node("Number", from.toString());
+		public Node map(Token from) {
+			return new Node("Number", from.toString(), from.index());
 		}
 	}
 	
-	public static final class NodeMapper implements Map<UASMNode, UASMNode> {
+	public static final class NodeMap implements Map<Node, Node> {
 		private final String nonTerminal;
 		
-		public NodeMapper(String nonTerminal) {
+		public NodeMap(String nonTerminal) {
 			this.nonTerminal = nonTerminal;
 		}
 		
 		@Override
-		public UASMNode map(UASMNode from) {
+		public Node map(Node from) {
 			if (flat)
 				return from;
-			Node node = new Node(nonTerminal, null);
+			Node node = new Node(nonTerminal, from.getPosition());
 			node.addChild((Node)from);
 			return node;
 		}
 	}
 	
-	public static final class ArrayMapper implements Map<Object[], UASMNode> {
+	public static final class NodeWithChildrenMap implements Map<Object[], Node> {
 		private final String nonTerminal;
 		
-		public ArrayMapper(String nonTerminal) {
+		public NodeWithChildrenMap(String nonTerminal) {
 			this.nonTerminal = nonTerminal;
 		}
 
 		@Override
-		public UASMNode map(Object[] from) {
-			return addChildren(new Node(nonTerminal, null), from);
+		public Node map(Object[] from) {
+			return addChildren(new Node(nonTerminal, getPosition(from)), from);
+		}
+		
+		private static int getPosition(Object[] children) {
+			for (Object child : children) {
+				if (child instanceof Node)
+					return ((Node)child).getPosition();
+				if (child instanceof Object[]) {
+					int pos = getPosition((Object[])child);
+					if (pos >= 0)
+						return pos;
+				}
+			}
+			return -1;
 		}
 		
 		private Node addChildren(Node parent, Object[] children) {

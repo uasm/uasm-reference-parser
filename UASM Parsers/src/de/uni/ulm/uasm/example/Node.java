@@ -2,26 +2,47 @@ package de.uni.ulm.uasm.example;
 
 import java.util.LinkedList;
 
-import de.uni.ulm.uasm.parsers.UASMNode;
-
-public class Node implements UASMNode {
+/**
+ * A simple node implementation
+ * @author Michael Stegmaier
+ *
+ */
+public class Node {
 	private Node parent;
-	private LinkedList<Node> children = new LinkedList<Node>();
-	private String nonTerminal;
-	private String token;
+	private final LinkedList<Node> children = new LinkedList<Node>();
+	private final String nonTerminal;
+	private final String token;
+	private final int position;
 	
-	public Node(String nonTerminal, String token) {
+	public Node(String nonTerminal, int position) {
+		this(nonTerminal, null, position);
+	}
+	
+	public Node(String nonTerminal, String token, int position) {
+		if (nonTerminal == null)
+			throw new IllegalArgumentException("A non-terminal must not be null.");
 		this.nonTerminal = nonTerminal;
 		this.token = token;
+		this.position = position;
 	}
 	
 	public void addChild(Node child) {
+		if (child == null)
+			throw new IllegalArgumentException("A child must not be null.");
 		child.parent = this;
 		children.add(child);
 	}
 	
 	public Node getParent() {
 		return parent;
+	}
+	
+	public int getPosition() {
+		return position;
+	}
+	
+	public String getToken() {
+		return token;
 	}
 	
 	public LinkedList<Node> getChildren() {

@@ -26,7 +26,13 @@ import org.codehaus.jparsec.functors.Unary;
 import org.codehaus.jparsec.pattern.Pattern;
 import org.codehaus.jparsec.pattern.Patterns;
 
-public final class UASMParsers {
+/**
+ * The implementation of the UASM Parsers as described by the UASM team.
+ * @author Michael
+ *
+ * @param <N>
+ */
+public final class UASMParsers<N> {
 	private static final HashSet<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] {
 			"asm", "asmmodule",
 			"use",
@@ -41,8 +47,8 @@ public final class UASMParsers {
 			"skip",
 			"if", "then", "else", "endif",
 			"case", "otherwise", "endcase",
-			"choose", "with", "do", "ifnone",
-			"forall",
+			"choose", "with", "do", "ifnone", "endchoose",
+			"forall", "endforall",
 			"let",
 			"extend", "as",
 			"iterate", "while",
@@ -71,7 +77,7 @@ public final class UASMParsers {
 	static {
 		Pattern digitParser = Patterns.range('0', '9').many1();
 		Pattern floatParser = digitParser.next(Patterns.isChar('.').next(digitParser).optional());
-		LEXERS.add(Scanners.pattern(floatParser, "NUMBER").source().map(new org.codehaus.jparsec.functors.Map<String,Fragment>() {
+		LEXERS.add(Scanners.pattern(floatParser, "NUMBER").source().map(new Map<String,Fragment>() {
 			@Override
 			public Fragment map(String from) {
 				return Tokens.fragment(from, Tag.DECIMAL);
@@ -107,57 +113,59 @@ public final class UASMParsers {
 		UNARY_OPERATORS.put("-", 9);
 		UNARY_OPERATORS.put("not", 3);
 	}
-	private static UASMParsers instance;
-	private final MapperProvider mapperProvider;
-	private final Map<Token, UASMNode> identifierMapper;
-	private final Map<Token, UASMNode> keywordMapper;
-	private final Map<Token, UASMNode> operatorMapper;
-	private final Map<Token, UASMNode> stringMapper;
-	private final Map<Token, UASMNode> charMapper;
-	private final Map<Token, UASMNode> numberMapper;
+	private final ParseMapProvider<N> mapperProvider;
+	private final Map<Token, N> identifierMapper;
+	private final Map<Token, N> keywordMapper;
+	private final Map<Token, N> operatorMapper;
+	private final Map<Token, N> stringMapper;
+	private final Map<Token, N> charMapper;
+	private final Map<Token, N> numberMapper;
 	private final Terminals terminals;
 	private final Parser<Object> tokenizer;
-	private Parser<UASMNode> idParser;
-	private Parser<UASMNode> stringParser;
-	private Parser<UASMNode> numberParser;
-	private Parser<UASMNode> charParser;
-	private HashMap<String, Parser<UASMNode>> keywordParsers = new HashMap<String, Parser<UASMNode>>();
-	private HashMap<String, Parser<UASMNode>> operatorParsers = new HashMap<String, Parser<UASMNode>>();
-	private HashMap<String, List<Parser<UASMNode>>> additionalParsers = new HashMap<String, List<Parser<UASMNode>>>();
-	private HashMap<String, Parser.Reference<UASMNode>> parsers;
+	private final Parser<Void> delimiter = Parsers.or(Scanners.JAVA_LINE_COMMENT, Scanners.JAVA_BLOCK_COMMENT, Scanners.WHITESPACES).skipMany();
+	private Parser<N> idParser;
+	private Parser<N> stringParser;
+	private Parser<N> numberParser;
+	private Parser<N> charParser;
+	private HashMap<String, Parser<N>> keywordParsers = new HashMap<String, Parser<N>>();
+	private HashMap<String, Parser<N>> operatorParsers = new HashMap<String, Parser<N>>();
+	private HashMap<String, List<Parser<N>>> additionalParsers = new HashMap<String, List<Parser<N>>>();
+	private HashMap<String, Parser.Reference<N>> parsers;
 	
-	private UASMParsers(MapperProvider mapperProvider) {
+	public UASMParsers(ParseMapProvider<N> mapperProvider) {
 		this(mapperProvider, null, null, null);
 	}
 	
-	private UASMParsers(MapperProvider mapperProvider, Set<String> additionalKeywords, Set<String> additionalOperators, Set<Parser<? extends Object>> additionalLexers) {
+	public UASMParsers(ParseMapProvider<N> mapperProvider, Set<String> additionalKeywords, Set<String> additionalOperators, Set<Parser<? extends Object>> additionalLexers) {
 		if (mapperProvider == null)
 			throw new NullPointerException("The argument 'mapperProvider' must not be null.");
-		if (mapperProvider.getIdentifierMapper() == null)
+		if (mapperProvider.getIdentifierMap() == null)
 			throw new NullPointerException("The IdentifierMapper must not be null.");
-		if (mapperProvider.getKeywordMapper() == null)
+		if (mapperProvider.getKeywordMap() == null)
 			throw new NullPointerException("The KeywordMapper must not be null.");
-		if (mapperProvider.getOperatorMapper() == null)
+		if (mapperProvider.getOperatorMap() == null)
 			throw new NullPointerException("The OperatorMapper must not be null.");
-		if (mapperProvider.getStringMapper() == null)
+		if (mapperProvider.getStringMap() == null)
 			throw new NullPointerException("The StringMapper must not be null.");
-		if (mapperProvider.getStringMapper() == null)
+		if (mapperProvider.getStringMap() == null)
 			throw new NullPointerException("The CharMapper must not be null.");
-		if (mapperProvider.getNumberMapper() == null)
+		if (mapperProvider.getNumberMap() == null)
 			throw new NullPointerException("The NumberMapper must not be null.");
+		
 		if (additionalKeywords != null)
 			KEYWORDS.addAll(additionalKeywords);
 		if (additionalOperators != null)
 			OPERATORS.addAll(additionalOperators);
-		if (additionalLexers == null)
-			additionalLexers = Collections.emptySet();
+		if (additionalLexers != null)
+			LEXERS.addAll(additionalLexers);
+		
 		this.mapperProvider = mapperProvider;
-		this.identifierMapper = mapperProvider.getIdentifierMapper();
-		this.keywordMapper = mapperProvider.getKeywordMapper();
-		this.operatorMapper = mapperProvider.getOperatorMapper();
-		this.stringMapper = mapperProvider.getStringMapper();
-		this.charMapper = mapperProvider.getCharMapper();
-		this.numberMapper = mapperProvider.getNumberMapper();
+		this.identifierMapper = mapperProvider.getIdentifierMap();
+		this.keywordMapper = mapperProvider.getKeywordMap();
+		this.operatorMapper = mapperProvider.getOperatorMap();
+		this.stringMapper = mapperProvider.getStringMap();
+		this.charMapper = mapperProvider.getCharMap();
+		this.numberMapper = mapperProvider.getNumberMap();
 		
 		// Treat operators consisting of letters as keywords to avoid parsing prefixes of keywords as operators (e.g. 'mode' would be parsed as 'mod' 'e')
 		Iterator<String> it = OPERATORS.iterator();
@@ -177,22 +185,22 @@ public final class UASMParsers {
 		tokenizer = Parsers.or(list);
 	}
 	
-	public Collection<String> getKeywords() {
+	public Collection<String> getDefaultKeywords() {
 		return Collections.unmodifiableCollection(KEYWORDS);
 	}
 	
-	public Collection<String> getOperators() {
+	public Collection<String> getDefaultOperators() {
 		return Collections.unmodifiableCollection(OPERATORS);
 	}
 	
-	public Collection<Parser<? extends Object>> getLexers() {
+	public Collection<Parser<? extends Object>> getDefaultLexers() {
 		return Collections.unmodifiableCollection(LEXERS);
 	}
 	
-	public Parser<UASMNode> getParser(String nonTerminal) {
+	public Parser<N> getParser(String nonTerminal) {
 		if (parsers == null)
-			parsers = new HashMap<String, Parser.Reference<UASMNode>>();
-		Parser.Reference<UASMNode> parserRef = parsers.get(nonTerminal);
+			parsers = new HashMap<String, Parser.Reference<N>>();
+		Parser.Reference<N> parserRef = parsers.get(nonTerminal);
 		if (parserRef == null) {
 			parserRef = Parser.newReference();
 			parsers.put(nonTerminal, parserRef);
@@ -352,14 +360,22 @@ public final class UASMParsers {
 				createBasicDomainParser();
 			else {
 				parsers.remove(nonTerminal);
+				if ("Id".equals(nonTerminal))
+					return getIdParser();
+				else if ("StringLiteral".equals(nonTerminal))
+					return getStringParser();
+				else if ("CharLiteral".equals(nonTerminal))
+					return getCharParser();
+				else if ("NumberLiteral".equals(nonTerminal))
+					return getNumberParser();
 				throw new IllegalArgumentException("Unknown parser requested: '" + nonTerminal + "'");
 			}
 		}
 		return parsers.get(nonTerminal).lazy();
 	}
 	
-	private List<Parser<UASMNode>> getAdditionalParsers(String nonTerminal) {
-		List<Parser<UASMNode>> parsers = additionalParsers.get(nonTerminal);
+	private List<Parser<N>> getAdditionalParsers(String nonTerminal) {
+		List<Parser<N>> parsers = additionalParsers.get(nonTerminal);
 		if (parsers == null)
 			parsers = Collections.emptyList();
 		return parsers;
@@ -371,7 +387,7 @@ public final class UASMParsers {
 	private void createAsmParser() {
 		createArrayParser("Asm", Parsers.array(	Parsers.or(	getKeywordParser("asm"),
 															getKeywordParser("asmmodule")),
-												getIdParser(),
+												getParser("Id"),
 												getParser("Header"),
 												getParser("Body")));
 	}
@@ -390,7 +406,7 @@ public final class UASMParsers {
 	 */
 	private void createUseDirectiveParser() {
 		createArrayParser("UseDirective", Parsers.array(getKeywordParser("use"),
-														getIdParser()));
+														getParser("Id")));
 	}
 	
 	/**
@@ -398,7 +414,7 @@ public final class UASMParsers {
 	 */
 	private void createImportDirectiveParser() {
 		createArrayParser("ImportDirective", Parsers.array(	getKeywordParser("import"),
-															getIdParser(),
+															getParser("Id"),
 															Parsers.array(	getOperatorParser("("),
 																			csplus(Parsers.or(	getParser("IdDomain"),
 																								getParser("IdFunction"),
@@ -411,7 +427,7 @@ public final class UASMParsers {
 	 */
 	private void createExportDirectiveParser() {
 		createArrayParser("ExportDirective", Parsers.array(	getKeywordParser("export"),
-															getIdParser(),
+															getParser("Id"),
 															Parsers.or(	Parsers.array(	getOperatorParser("("),
 																						csplus(Parsers.or(	getParser("IdDomain"),
 																											getParser("IdFunction"),
@@ -472,7 +488,7 @@ public final class UASMParsers {
 	 */
 	private void createEnumerateDefinitionParser() {
 		createArrayParser("EnumerateDefinition", Parsers.array(	getKeywordParser("enum"),
-																getIdParser(),
+																getParser("Id"),
 																getOperatorParser("="),
 																getOperatorParser("{"),
 																csplus(getParser("EnumTerm")),
@@ -492,10 +508,10 @@ public final class UASMParsers {
 	 */
 	private void createParameterDefinitionParser() {
 		createArrayParser("ParameterDefinition", Parsers.array(	getOperatorParser("("),
-																csplus(Parsers.or(	Parsers.array(	getIdParser(),
+																csplus(Parsers.or(	Parsers.array(	getParser("Id"),
 																									getKeywordParser("in"),
 																									getParser("Domain")),
-																					getIdParser(),
+																					getParser("Id"),
 																					getParser("Domain"))),
 																getOperatorParser(")")));
 	}
@@ -605,7 +621,7 @@ public final class UASMParsers {
 	}
 	
 	/**
-	 * RuleDefinition ::= 'rule' IdRule ParameterDefinition '=' Rule
+	 * RuleDefinition ::= 'rule' IdRule ParameterDefinition? '=' Rule
 	 */
 	private void createRuleDefinitionParser() {
 		createArrayParser("RuleDefinition", Parsers.array(	getKeywordParser("rule"),
@@ -702,7 +718,7 @@ public final class UASMParsers {
 	}
 	
 	/**
-	 * ConditionalRule ::= 'if' Term 'then' Rule ('else' Rule)?
+	 * ConditionalRule ::= 'if' Term 'then' Rule ('else' Rule)? 'endif'?
 	 */
 	private void createConditionalRuleParser() {
 		createArrayParser("ConditionalRule", Parsers.array(	getKeywordParser("if"),
@@ -730,7 +746,7 @@ public final class UASMParsers {
 	}
 	
 	/**
-	 * ChooseRule ::= 'choose' VariableTerm 'in' EnumerableTerm (',' VariableTerm 'in' EnumerableTerm)* ('with' Term)? 'do' Rule ('ifnone' Rule)? 
+	 * ChooseRule ::= 'choose' VariableTerm 'in' EnumerableTerm (',' VariableTerm 'in' EnumerableTerm)* ('with' Term)? 'do' Rule ('ifnone' Rule)? 'endchoose'?
 	 */
 	private void createChooseRuleParser() {
 		createArrayParser("ChooseRule", Parsers.array(	getKeywordParser("choose"),
@@ -742,11 +758,12 @@ public final class UASMParsers {
 														Parsers.array(	getKeywordParser("do"),
 																		getParser("Rule")),
 														Parsers.array(	getKeywordParser("ifnone"),
-																		getParser("Rule")).optional()));
+																		getParser("Rule")).optional(),
+														getKeywordParser("endchoose").optional()));
 	}
 	
 	/**
-	 * ForAllRule ::= 'forall' VariableTerm 'in' EnumerableTerm (',' VariableTerm 'in' EnumerableTerm)* ('with' Term)? 'do' Rule ('ifnone' Rule)?
+	 * ForAllRule ::= 'forall' VariableTerm 'in' EnumerableTerm (',' VariableTerm 'in' EnumerableTerm)* ('with' Term)? 'do' Rule ('ifnone' Rule)? 'endforall'?
 	 */
 	private void createForAllRuleParser() {
 		createArrayParser("ForAllRule", Parsers.array(	getKeywordParser("forall"),
@@ -758,7 +775,8 @@ public final class UASMParsers {
 														Parsers.array(	getKeywordParser("do"),
 																		getParser("Rule")),
 														Parsers.array(	getKeywordParser("ifnone"),
-																		getParser("Rule")).optional()));
+																		getParser("Rule")).optional(),
+														getKeywordParser("endforall").optional()));
 	}
 	
 	/**
@@ -829,7 +847,7 @@ public final class UASMParsers {
 	 */
 	private void createLocalRuleParser() {
 		createArrayParser("LocalRule", Parsers.array(	getKeywordParser("local"),
-														csplus(Parsers.array(	getIdParser(),
+														csplus(Parsers.array(	getParser("Id"),
 																				getParser("ParameterDefinition").optional(),
 																				Parsers.array(	getOperatorParser("->"),
 																								getParser("Domain")).optional(),
@@ -848,7 +866,7 @@ public final class UASMParsers {
 	}
 	
 	/**
-	 * BasicTerm ::= LocationTerm | ComprehensionTerm | StructureTerm | PickTerm | ConditionalTerm | CaseTerm | RuleAsTerm | ReturnTerm | ForAllTerm | ExistsTerm | SizeOfEnumerableTerm | NumberRangeTerm | Literal
+	 * BasicTerm ::= LocationTerm | ComprehensionTerm | StructureTerm | PickTerm | ConditionalTerm | CaseTerm | RuleAsTerm | ReturnTerm | ForAllTerm | ExistsTerm | SizeOfEnumerableTerm | Literal
 	 */
 	@SuppressWarnings("unchecked")
 	private void createBasicTermParser() {
@@ -863,7 +881,6 @@ public final class UASMParsers {
 												getParser("ForAllTerm"),
 												getParser("ExistsTerm"),
 												getParser("SizeOfEnumerableTerm"),
-												getParser("NumberRangeTerm"),
 												getParser("Literal")));
 	}
 	
@@ -881,7 +898,7 @@ public final class UASMParsers {
 	 * EnumTerm ::= Id
 	 */
 	private void createEnumTermParser() {
-		createParser("EnumTerm", getIdParser());
+		createParser("EnumTerm", getParser("Id"));
 	}
 	
 	/**
@@ -908,16 +925,16 @@ public final class UASMParsers {
 	}
 	
 	/**
-	 * Term ::= BasicExpression BinaryOperator BasicExpression | UnaryOperator BasicExpression
+	 * Term ::= BasicExpression | BasicExpression BinaryOperator BasicExpression | UnaryOperator BasicExpression
 	 * BasicExpression ::= BasicTerm | '(' Term ')'
 	 */
 	private void createTermParser() {
-		OperatorTable<UASMNode> table = new OperatorTable<UASMNode>();
+		OperatorTable<N> table = new OperatorTable<N>();
 		for (Entry<String, Integer> entry : BINARY_OPERATORS.entrySet())
 			table.infixl(createBinaryOperator(entry.getKey()), entry.getValue());
 		for (Entry<String, Integer> entry : UNARY_OPERATORS.entrySet())
 			table.prefix(createUnaryOperator(entry.getKey()), entry.getValue());
-		parsers.put("BasicExpression", Parser.<UASMNode>newReference());
+		parsers.put("BasicExpression", Parser.<N>newReference());
 		createArrayParser("BasicExpression", Parsers.array(Parsers.or(	getParser("BasicTerm"),
 																		Parsers.array(	getOperatorParser("("),
 																						getParser("Term"),
@@ -925,23 +942,29 @@ public final class UASMParsers {
 		createParser("Term", table.build(getParser("BasicExpression")));
 	}
 	
-	private Parser<Binary<UASMNode>> createBinaryOperator(String operator) {
-		return terminals.token(operator).retn(mapperProvider.getBinaryOperatorMapper(operator));
+	private Parser<Binary<N>> createBinaryOperator(String operator) {
+		Binary<N> operatorMap = mapperProvider.getBinaryOperatorMap(operator);
+		if (operatorMap == null)
+			throw new NullPointerException("An operator map must not be null. The operator map for '" + operator + "' was null.");
+		return terminals.token(operator).retn(operatorMap);
 	}
 	
-	private Parser<Unary<UASMNode>> createUnaryOperator(String operator) {
-		return terminals.token(operator).retn(mapperProvider.getUnaryOperatorMapper(operator));
+	private Parser<Unary<N>> createUnaryOperator(String operator) {
+		Unary<N> operatorMap = mapperProvider.getUnaryOperatorMap(operator);
+		if (operatorMap == null)
+			throw new NullPointerException("An operator map must not be null. The operator map for '" + operator + "' was null.");
+		return terminals.token(operator).retn(operatorMap);
 	}
 	
 	/**
 	 * Literal ::= NumberLiteral | BooleanLiteral | KernelLiteral | StringLiteral | CharLiteral | EnumTerm
 	 */
 	private void createLiteralParser() {
-		createParser("Literal", Parsers.or(	getNumberParser(),
+		createParser("Literal", Parsers.or(	getParser("NumberLiteral"),
 											getParser("BooleanLiteral"),
 											getParser("KernelLiteral"),
-											getStringParser(),
-											getCharParser(),
+											getParser("StringLiteral"),
+											getParser("CharLiteral"),
 											getParser("EnumTerm")));
 	}
 	
@@ -1043,23 +1066,24 @@ public final class UASMParsers {
 	}
 	
 	/**
-	 * ReturnTerm ::= 'return' VariableTerm 'in' Rule
+	 * ReturnTerm ::= 'return' FunctionTerm 'in' Rule
 	 */
 	private void createReturnTermParser() {
 		createArrayParser("ReturnTerm", Parsers.array(	getKeywordParser("return"),
-														getParser("VariableTerm"),
+														getParser("FunctionTerm"),
 														getKeywordParser("in"),
 														getParser("Rule")));
 	}
 	
 	/**
-	 * ComprehensionTerm ::= SetComprehensionTerm | ListComprehensionTerm | MapComprehensionTerm | BagComprehensionTerm
+	 * ComprehensionTerm ::= SetComprehensionTerm | ListComprehensionTerm | MapComprehensionTerm | BagComprehensionTerm | NumberRangeTerm
 	 */
 	private void createComprehensionTermParser() {
 		createParser("ComprehensionTerm", Parsers.or(	getParser("SetComprehensionTerm"),
 														getParser("ListComprehensionTerm"),
 														getParser("MapComprehensionTerm"),
-														getParser("BagComprehensionTerm")));
+														getParser("BagComprehensionTerm"),
+														getParser("NumberRangeTerm")));
 	}
 	
 	/**
@@ -1194,21 +1218,21 @@ public final class UASMParsers {
 	 * IdDomain ::= Id
 	 */
 	private void createIdDomainParser() {
-		createParser("IdDomain", getIdParser());
+		createParser("IdDomain", getParser("Id"));
 	}
 	
 	/**
 	 * IdFunction ::= Id
 	 */
 	private void createIdFunctionParser() {
-		createParser("IdFunction", getIdParser());
+		createParser("IdFunction", getParser("Id"));
 	}
 	
 	/**
 	 * IdRule ::= Id
 	 */
 	private void createIdRuleParser() {
-		createParser("IdRule", getIdParser());
+		createParser("IdRule", getParser("Id"));
 	}
 	
 	/**
@@ -1284,65 +1308,76 @@ public final class UASMParsers {
 	}
 	
 	private void createArrayParser(String nonTerminal, Parser<Object[]> parser) {
-		createParser(nonTerminal, parser.map(mapperProvider.getArrayMapper(nonTerminal)), false);
+		Map<Object[], N> arrayMap = mapperProvider.getArrayMap(nonTerminal);
+		if (arrayMap == null)
+			throw new NullPointerException("An array map must not be null. The array map for '" + nonTerminal + "' was null.");
+		createParser(nonTerminal, parser.map(arrayMap), false);
 	}
 	
-	private void createParser(String nonTerminal, Parser<UASMNode> parser) {
+	private void createParser(String nonTerminal, Parser<N> parser) {
 		createParser(nonTerminal, parser, true);
 	}
 	
-	private void createParser(String nonTerminal, Parser<UASMNode> parser, boolean shouldMap) {
-		LinkedList<Parser<UASMNode>> parsers = new LinkedList<Parser<UASMNode>>();
+	private void createParser(String nonTerminal, Parser<N> parser, boolean shouldMap) {
+		LinkedList<Parser<N>> parsers = new LinkedList<Parser<N>>();
 		parsers.add(parser);
 		parsers.addAll(getAdditionalParsers(nonTerminal));
-		Parser.Reference<UASMNode> ref = this.parsers.get(nonTerminal);
-		if (shouldMap && mapperProvider.getMapper(nonTerminal) != null)
-			ref.set(Parsers.longest(parsers).map(mapperProvider.getMapper(nonTerminal)));
+		Parser.Reference<N> ref = this.parsers.get(nonTerminal);
+		if (shouldMap && mapperProvider.getNodeMap(nonTerminal) != null)
+			ref.set(Parsers.longest(parsers).map(mapperProvider.getNodeMap(nonTerminal)));
 		else
 			ref.set(Parsers.longest(parsers));
 	}
 	
-	public void addParser(String nonTerminal, Parser<UASMNode> parser) {
+	public void addParser(String nonTerminal, Parser<N> parser) {
 		if (parsers != null)
 			throw new IllegalStateException("Parsers have already been created. Parsers must be added before the first call of getParsers.");
-		List<Parser<UASMNode>> parsers = additionalParsers.get(nonTerminal);
+		List<Parser<N>> parsers = additionalParsers.get(nonTerminal);
 		if (parsers == null) {
-			parsers = new LinkedList<Parser<UASMNode>>();
+			parsers = new LinkedList<Parser<N>>();
 			additionalParsers.put(nonTerminal, parsers);
 		}
 		parsers.add(parser);
 	}
 	
-	public Parser<UASMNode> getRootParser() {
-		return getParser("Asm").from(tokenizer, Parsers.or(Scanners.JAVA_LINE_COMMENT, Scanners.JAVA_BLOCK_COMMENT, Scanners.WHITESPACES).skipMany());
+	public Parser<N> getRootParser() {
+		return getParser("Asm").from(getTokenizer(), getDelimiter());
 	}
 	
-	public Parser<UASMNode> getIdParser() {
+	public Parser<Object> getTokenizer() {
+		return tokenizer;
+	}
+	
+	public Parser<Void> getDelimiter() {
+		return delimiter;
+	}
+	
+	private Parser<N> getIdParser() {
 		if (idParser == null)
 			idParser = Terminals.Identifier.PARSER.token().map(identifierMapper);
 		return idParser;
 	}
 	
-	private Parser<UASMNode> getStringParser() {
+	private Parser<N> getStringParser() {
 		if (stringParser == null)
 			stringParser = Terminals.StringLiteral.PARSER.token().map(stringMapper);
 		return stringParser;
 	}
 	
-	private Parser<UASMNode> getCharParser() {
+	private Parser<N> getCharParser() {
 		if (charParser == null)
 			charParser = Terminals.CharLiteral.PARSER.token().map(charMapper);
 		return charParser;
 	}
 	
-	public Parser<UASMNode> getNumberParser() {
+	private Parser<N> getNumberParser() {
 		if (numberParser == null)
 			numberParser = Terminals.fragment(Tag.DECIMAL).token().map(numberMapper);
 		return numberParser;
 	}
 	
-	public Parser<UASMNode> getOperatorParser(String token) {
-		Parser<UASMNode> parser = operatorParsers.get(token);
+	private Parser<N> getOperatorParser(String token) {
+		Parser<N> parser = operatorParsers.get(token);
 		if (parser == null) {
 			parser = terminals.token(token).map(operatorMapper);
 			operatorParsers.put(token, parser);
@@ -1350,34 +1385,12 @@ public final class UASMParsers {
 		return parser;
 	}
 	
-	public Parser<UASMNode> getKeywordParser(String token) {
-		Parser<UASMNode> parser = keywordParsers.get(token);
+	private Parser<N> getKeywordParser(String token) {
+		Parser<N> parser = keywordParsers.get(token);
 		if (parser == null) {
 			parser = terminals.token(token).map(keywordMapper);
 			keywordParsers.put(token, parser);
 		}
 		return parser;
-	}
-	
-	public static void initialize(MapperProvider mapperProvider) {
-		if (isInitialized())
-			throw new IllegalStateException("The UASM Parsers have already been initialized.");
-		instance = new UASMParsers(mapperProvider);
-	}
-	
-	public static void initialize(MapperProvider mapperProvider, Set<String> keywords, Set<String> operators, Set<Parser<? extends Object>> lexers) {
-		if (isInitialized())
-			throw new IllegalStateException("The UASM Parsers have already been initialized.");
-		instance = new UASMParsers(mapperProvider, keywords, operators, lexers);
-	}
-	
-	public static boolean isInitialized() {
-		return instance != null;
-	}
-	
-	public static UASMParsers getInstance() {
-		if (instance == null)
-			throw new IllegalStateException("The UASM Parsers must be initialized before they can be used. Please call initialze.");
-		return instance;
 	}
 }
