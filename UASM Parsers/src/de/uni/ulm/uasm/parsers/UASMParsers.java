@@ -35,21 +35,23 @@ import org.codehaus.jparsec.pattern.Patterns;
 public final class UASMParsers<N> {
 	
 
+	private static final String EXTENDABLE_DOMAIN = "ExtendableDomain";
+	public static final String BASIC_DOMAIN = "BasicDomain";
 	private static final String STRING_LITERAL = "StringLiteral";
 	private static final String CHAR_LITERAL = "CharLiteral";
 	private static final String NUMBER_LITERAL = "NumberLiteral";
 	// production rule names
-	private static final String ASM = "Asm";
-	private static final String HEADER = "Header";
-	private static final String USE_DIRECTIVE = "UseDirective";
-	private static final String IMPORT_DIRECTIVE = "ImportDirective";
-	private static final String EXPORT_DIRECTIVE = "ExportDirective";
-	private static final String BODY = "Body";
-	private static final String DEFINITION = "Definition";
-	private static final String TYPE_DEFINITION = "TypeDefinition";
-	private static final String DOMAIN_DEFINITION = "DomainDefinition";
-	private static final String INITIAL_DOMAIN_DEFINITION = "InitialDomainDefinition";
-	private static final String ENUMERATE_DEFINITION = "EnumerateDefinition";
+	public static final String ASM = "Asm";
+	public static final String HEADER = "Header";
+	public static final String USE_DIRECTIVE = "UseDirective";
+	public static final String IMPORT_DIRECTIVE = "ImportDirective";
+	public static final String EXPORT_DIRECTIVE = "ExportDirective";
+	public static final String BODY = "Body";
+	public static final String DEFINITION = "Definition";
+	public static final String TYPE_DEFINITION = "TypeDefinition";
+	public static final String DOMAIN_DEFINITION = "DomainDefinition";
+	public static final String INITIAL_DOMAIN_DEFINITION = "InitialDomainDefinition";
+	public static final String ENUMERATE_DEFINITION = "EnumerateDefinition";
 	
 	// keywords
 	private static final HashSet<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] {
@@ -373,9 +375,9 @@ public final class UASMParsers<N> {
 				createDomainParser();
 			else if ("StructuredDomain".equals(nonTerminal))
 				createStructuredDomainParser();
-			else if ("ExtendableDomain".equals(nonTerminal))
+			else if (EXTENDABLE_DOMAIN.equals(nonTerminal))
 				createExtendableDomainParser();
-			else if ("BasicDomain".equals(nonTerminal))
+			else if (BASIC_DOMAIN.equals(nonTerminal))
 				createBasicDomainParser();
 			else {
 				parsers.remove(nonTerminal);
@@ -815,7 +817,7 @@ public final class UASMParsers<N> {
 	 */
 	private void createExtendRuleParser() {
 		createArrayParser("ExtendRule", Parsers.array(	getKeywordParser("extend"),
-														getParser("ExtendableDomain"),
+														getParser(EXTENDABLE_DOMAIN),
 														getKeywordParser("with"),
 														csplus(getParser("VariableTerm")),
 														Parsers.array(	getKeywordParser("as"),
@@ -1259,8 +1261,8 @@ public final class UASMParsers<N> {
 	 */
 	private void createDomainParser() {
 		createParser("Domain", Parsers.or(	getParser("StructuredDomain"),
-											getParser("BasicDomain"),
-											getParser("ExtendableDomain")));
+											getParser(BASIC_DOMAIN),
+											getParser(EXTENDABLE_DOMAIN)));
 	}
 	
 	/**
@@ -1285,7 +1287,7 @@ public final class UASMParsers<N> {
 	 * ExtendableDomain ::= 'ANY' | 'AGENT' | IdDomain
 	 */
 	private void createExtendableDomainParser() {
-		createParser("ExtendableDomain", Parsers.or(getKeywordParser("ANY"),
+		createParser(EXTENDABLE_DOMAIN, Parsers.or(getKeywordParser("ANY"),
 													getKeywordParser("AGENT"),
 													getParser("IdDomain")));
 	}
@@ -1294,7 +1296,7 @@ public final class UASMParsers<N> {
 	 * BasicDomain ::= 'NUMBER' | 'INTEGER' | 'STRING' | 'CHAR' | 'BOOLEAN' | 'RULE'
 	 */
 	private void createBasicDomainParser() {
-		createParser("BasicDomain", Parsers.or(	getKeywordParser("NUMBER"),
+		createParser(BASIC_DOMAIN, Parsers.or(	getKeywordParser("NUMBER"),
 												getKeywordParser("INTEGER"),
 												getKeywordParser("STRING"),
 												getKeywordParser("CHAR"),
@@ -1358,7 +1360,7 @@ public final class UASMParsers<N> {
 		}
 		parsers.add(parser);
 	}
-	
+	/** return the parser for the main ASM*/
 	public Parser<N> getRootParser() {
 		return getParser(ASM).from(getTokenizer(), getDelimiter());
 	}
