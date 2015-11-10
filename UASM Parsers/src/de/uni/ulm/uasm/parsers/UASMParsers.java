@@ -33,6 +33,25 @@ import org.codehaus.jparsec.pattern.Patterns;
  * @param <N>
  */
 public final class UASMParsers<N> {
+	
+
+	private static final String STRING_LITERAL = "StringLiteral";
+	private static final String CHAR_LITERAL = "CharLiteral";
+	private static final String NUMBER_LITERAL = "NumberLiteral";
+	// production rule names
+	private static final String ASM = "Asm";
+	private static final String HEADER = "Header";
+	private static final String USE_DIRECTIVE = "UseDirective";
+	private static final String IMPORT_DIRECTIVE = "ImportDirective";
+	private static final String EXPORT_DIRECTIVE = "ExportDirective";
+	private static final String BODY = "Body";
+	private static final String DEFINITION = "Definition";
+	private static final String TYPE_DEFINITION = "TypeDefinition";
+	private static final String DOMAIN_DEFINITION = "DomainDefinition";
+	private static final String INITIAL_DOMAIN_DEFINITION = "InitialDomainDefinition";
+	private static final String ENUMERATE_DEFINITION = "EnumerateDefinition";
+	
+	// keywords
 	private static final HashSet<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] {
 			"asm", "asmmodule",
 			"use",
@@ -204,27 +223,27 @@ public final class UASMParsers<N> {
 		if (parserRef == null) {
 			parserRef = Parser.newReference();
 			parsers.put(nonTerminal, parserRef);
-			if ("Asm".equals(nonTerminal))
+			if (ASM.equals(nonTerminal))
 				createAsmParser();
-			else if ("Header".equals(nonTerminal))
+			else if (HEADER.equals(nonTerminal))
 				createHeaderParser();
-			else if ("UseDirective".equals(nonTerminal))
+			else if (USE_DIRECTIVE.equals(nonTerminal))
 				createUseDirectiveParser();
-			else if ("ImportDirective".equals(nonTerminal))
+			else if (IMPORT_DIRECTIVE.equals(nonTerminal))
 				createImportDirectiveParser();
-			else if ("ExportDirective".equals(nonTerminal))
+			else if (EXPORT_DIRECTIVE.equals(nonTerminal))
 				createExportDirectiveParser();
-			else if ("Body".equals(nonTerminal))
+			else if (BODY.equals(nonTerminal))
 				createBodyParser();
-			else if ("Definition".equals(nonTerminal))
+			else if (DEFINITION.equals(nonTerminal))
 				createDefinitionParser();
-			else if ("TypeDefinition".equals(nonTerminal))
+			else if (TYPE_DEFINITION.equals(nonTerminal))
 				createTypeDefinitionParser();
-			else if ("DomainDefinition".equals(nonTerminal))
+			else if (DOMAIN_DEFINITION.equals(nonTerminal))
 				createDomainDefinitionParser();
-			else if ("InitialDomainDefinition".equals(nonTerminal))
+			else if (INITIAL_DOMAIN_DEFINITION.equals(nonTerminal))
 				createInitialDomainDefinitionParser();
-			else if ("EnumerateDefinition".equals(nonTerminal))
+			else if (ENUMERATE_DEFINITION.equals(nonTerminal))
 				createEnumerateDefinitionParser();
 			else if ("DomainParameterDefinition".equals(nonTerminal))
 				createDomainParameterDefinitionParser();
@@ -362,11 +381,11 @@ public final class UASMParsers<N> {
 				parsers.remove(nonTerminal);
 				if ("Id".equals(nonTerminal))
 					return getIdParser();
-				else if ("StringLiteral".equals(nonTerminal))
+				else if (STRING_LITERAL.equals(nonTerminal))
 					return getStringParser();
-				else if ("CharLiteral".equals(nonTerminal))
+				else if (CHAR_LITERAL.equals(nonTerminal))
 					return getCharParser();
-				else if ("NumberLiteral".equals(nonTerminal))
+				else if (NUMBER_LITERAL.equals(nonTerminal))
 					return getNumberParser();
 				throw new IllegalArgumentException("Unknown parser requested: '" + nonTerminal + "'");
 			}
@@ -385,27 +404,27 @@ public final class UASMParsers<N> {
 	 * Asm ::= ('asm' | 'asmmodule') Id Header Body
 	 */
 	private void createAsmParser() {
-		createArrayParser("Asm", Parsers.array(	Parsers.or(	getKeywordParser("asm"),
+		createArrayParser(ASM, Parsers.array(	Parsers.or(	getKeywordParser("asm"),
 															getKeywordParser("asmmodule")),
 												getParser("Id"),
-												getParser("Header"),
-												getParser("Body")));
+												getParser(HEADER),
+												getParser(BODY)));
 	}
 	
 	/**
 	 * Header ::= (UseDirective | ImportDirective | ExportDirective)*
 	 */
 	private void createHeaderParser() {
-		createArrayParser("Header", Parsers.array(star(Parsers.or(	getParser("UseDirective"),
-																	getParser("ImportDirective"),
-																	getParser("ExportDirective")))));
+		createArrayParser(HEADER, Parsers.array(star(Parsers.or(	getParser(USE_DIRECTIVE),
+																	getParser(IMPORT_DIRECTIVE),
+																	getParser(EXPORT_DIRECTIVE)))));
 	}
 	
 	/**
 	 * UseDirective ::= 'use' Id
 	 */
 	private void createUseDirectiveParser() {
-		createArrayParser("UseDirective", Parsers.array(getKeywordParser("use"),
+		createArrayParser(USE_DIRECTIVE, Parsers.array(getKeywordParser("use"),
 														getParser("Id")));
 	}
 	
@@ -413,7 +432,7 @@ public final class UASMParsers<N> {
 	 * ImportDirective ::= 'import' Id ('(' (IdDomain | IdFunction | IdRule) (',' (IdDomain | IdFunction | IdRule))* ')')?
 	 */
 	private void createImportDirectiveParser() {
-		createArrayParser("ImportDirective", Parsers.array(	getKeywordParser("import"),
+		createArrayParser(IMPORT_DIRECTIVE, Parsers.array(	getKeywordParser("import"),
 															getParser("Id"),
 															Parsers.array(	getOperatorParser("("),
 																			csplus(Parsers.or(	getParser("IdDomain"),
@@ -426,7 +445,7 @@ public final class UASMParsers<N> {
 	 * ExportDirective ::= 'export' Id ('(' (IdDomain | IdFunction | IdRule) (',' (IdDomain | IdFunction | IdRule))* ')' | '*')?
 	 */
 	private void createExportDirectiveParser() {
-		createArrayParser("ExportDirective", Parsers.array(	getKeywordParser("export"),
+		createArrayParser(EXPORT_DIRECTIVE, Parsers.array(	getKeywordParser("export"),
 															getParser("Id"),
 															Parsers.or(	Parsers.array(	getOperatorParser("("),
 																						csplus(Parsers.or(	getParser("IdDomain"),
@@ -440,7 +459,7 @@ public final class UASMParsers<N> {
 	 * Body ::= Definition* ('exec' IdRule)?
 	 */
 	private void createBodyParser() {
-		createArrayParser("Body",	Parsers.array(	star(getParser("Definition")),
+		createArrayParser(BODY,	Parsers.array(	star(getParser(DEFINITION)),
 													Parsers.array(	getKeywordParser("exec"),
 																	getParser("IdRule")).optional()));
 	}
@@ -449,7 +468,7 @@ public final class UASMParsers<N> {
 	 * Definition ::= TypeDefinition | FunctionDefinition | RuleDefinition
 	 */
 	private void createDefinitionParser() {
-		createParser("Definition", Parsers.or(	getParser("TypeDefinition"),
+		createParser(DEFINITION, Parsers.or(	getParser(TYPE_DEFINITION),
 												getParser("FunctionDefinition"),
 												getParser("RuleDefinition")));
 	}
@@ -458,26 +477,26 @@ public final class UASMParsers<N> {
 	 * TypeDefinition ::= DomainDefinition | EnumerateDefinition
 	 */
 	private void createTypeDefinitionParser() {
-		createParser("TypeDefinition", Parsers.or(	getParser("DomainDefinition"),
-													getParser("EnumerateDefinition")));
+		createParser(TYPE_DEFINITION, Parsers.or(	getParser(DOMAIN_DEFINITION),
+													getParser(ENUMERATE_DEFINITION)));
 	}
 	
 	/**
 	 * DomainDefinition ::= 'domain' IdDomain | ('of' DomainParameterDefinition)? InitialDomainDefinition?
 	 */
 	private void createDomainDefinitionParser() {
-		createArrayParser("DomainDefinition", Parsers.array(	getKeywordParser("domain"),
+		createArrayParser(DOMAIN_DEFINITION, Parsers.array(	getKeywordParser("domain"),
 																getParser("IdDomain"),
 																Parsers.array(	getKeywordParser("of"),
 																				getParser("DomainParameterDefinition")).optional(),
-																getParser("InitialDomainDefinition").optional()));
+																getParser(INITIAL_DOMAIN_DEFINITION).optional()));
 	}
 	
 	/**
 	 * InitialDomainDefinition ::= 'initially' '{' Literal (',' Literal)* '}'
 	 */
 	private void createInitialDomainDefinitionParser() {
-		createArrayParser("InitialDomainDefinition", Parsers.array(	getKeywordParser("initially"),
+		createArrayParser(INITIAL_DOMAIN_DEFINITION, Parsers.array(	getKeywordParser("initially"),
 																	getOperatorParser("{"),
 																	csplus(getParser("Literal")),
 																	getOperatorParser("}")));
@@ -487,7 +506,7 @@ public final class UASMParsers<N> {
 	 * EnumerateDefinition ::= 'enum' Id '=' '{' EnumTerm (',' EnumTerm)* '}'
 	 */
 	private void createEnumerateDefinitionParser() {
-		createArrayParser("EnumerateDefinition", Parsers.array(	getKeywordParser("enum"),
+		createArrayParser(ENUMERATE_DEFINITION, Parsers.array(	getKeywordParser("enum"),
 																getParser("Id"),
 																getOperatorParser("="),
 																getOperatorParser("{"),
@@ -960,11 +979,11 @@ public final class UASMParsers<N> {
 	 * Literal ::= NumberLiteral | BooleanLiteral | KernelLiteral | StringLiteral | CharLiteral | EnumTerm
 	 */
 	private void createLiteralParser() {
-		createParser("Literal", Parsers.or(	getParser("NumberLiteral"),
+		createParser("Literal", Parsers.or(	getParser(NUMBER_LITERAL),
 											getParser("BooleanLiteral"),
 											getParser("KernelLiteral"),
-											getParser("StringLiteral"),
-											getParser("CharLiteral"),
+											getParser(STRING_LITERAL),
+											getParser(CHAR_LITERAL),
 											getParser("EnumTerm")));
 	}
 	
@@ -1341,7 +1360,7 @@ public final class UASMParsers<N> {
 	}
 	
 	public Parser<N> getRootParser() {
-		return getParser("Asm").from(getTokenizer(), getDelimiter());
+		return getParser(ASM).from(getTokenizer(), getDelimiter());
 	}
 	
 	public Parser<Object> getTokenizer() {
