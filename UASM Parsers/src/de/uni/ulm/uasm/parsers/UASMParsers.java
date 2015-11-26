@@ -35,11 +35,6 @@ import org.codehaus.jparsec.pattern.Patterns;
 public final class UASMParsers<N> {
 	
 
-	private static final String EXTENDABLE_DOMAIN = "ExtendableDomain";
-	public static final String BASIC_DOMAIN = "BasicDomain";
-	private static final String STRING_LITERAL = "StringLiteral";
-	private static final String CHAR_LITERAL = "CharLiteral";
-	private static final String NUMBER_LITERAL = "NumberLiteral";
 	// production rule names
 	public static final String ASM = "Asm";
 	public static final String HEADER = "Header";
@@ -51,7 +46,15 @@ public final class UASMParsers<N> {
 	public static final String TYPE_DEFINITION = "TypeDefinition";
 	public static final String DOMAIN_DEFINITION = "DomainDefinition";
 	public static final String INITIAL_DOMAIN_DEFINITION = "InitialDomainDefinition";
+	public static final String RULE_DEFINITION = "RuleDefinition";
+	public static final String FUNCTION_DEFINITION = "FunctionDefinition";
 	public static final String ENUMERATE_DEFINITION = "EnumerateDefinition";
+	public static final String CONTROLLED_FUNCTION = "ControlledFunction";
+	private static final String EXTENDABLE_DOMAIN = "ExtendableDomain";
+	public static final String BASIC_DOMAIN = "BasicDomain";
+	private static final String STRING_LITERAL = "StringLiteral";
+	private static final String CHAR_LITERAL = "CharLiteral";
+	private static final String NUMBER_LITERAL = "NumberLiteral";
 	
 	// keywords
 	private static final HashSet<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] {
@@ -251,7 +254,7 @@ public final class UASMParsers<N> {
 				createDomainParameterDefinitionParser();
 			else if ("ParameterDefinition".equals(nonTerminal))
 				createParameterDefinitionParser();
-			else if ("ControlledFunction".equals(nonTerminal))
+			else if (CONTROLLED_FUNCTION.equals(nonTerminal))
 				createControlledFunctionParser();
 			else if ("StaticFunction".equals(nonTerminal))
 				createStaticFunctionParser();
@@ -265,9 +268,9 @@ public final class UASMParsers<N> {
 				createOutFunctionParser();
 			else if ("InitialFunctionDefinition".equals(nonTerminal))
 				createInitialFunctionDefinitionParser();
-			else if ("FunctionDefinition".equals(nonTerminal))
+			else if (FUNCTION_DEFINITION.equals(nonTerminal))
 				createFunctionDefinitionParser();
-			else if ("RuleDefinition".equals(nonTerminal))
+			else if (RULE_DEFINITION.equals(nonTerminal))
 				createRuleDefinitionParser();
 			else if ("ParBlock".equals(nonTerminal))
 				createParBlockParser();
@@ -471,8 +474,8 @@ public final class UASMParsers<N> {
 	 */
 	private void createDefinitionParser() {
 		createParser(DEFINITION, Parsers.or(	getParser(TYPE_DEFINITION),
-												getParser("FunctionDefinition"),
-												getParser("RuleDefinition")));
+												getParser(FUNCTION_DEFINITION),
+												getParser(RULE_DEFINITION)));
 	}
 	
 	/**
@@ -541,7 +544,7 @@ public final class UASMParsers<N> {
 	 * ControlledFunction ::= ('controlled' | 'function' | 'controlled function') IdFunction ParameterDefinition? ('->' Domain)? ('initially' InitialFunctionDefinition)?
 	 */
 	private void createControlledFunctionParser() {
-		createArrayParser("ControlledFunction", Parsers.array(	Parsers.or(	getKeywordParser("controlled"),
+		createArrayParser(CONTROLLED_FUNCTION, Parsers.array(	Parsers.or(	getKeywordParser("controlled"),
 																			getKeywordParser("function"),
 																			Parsers.array(	getKeywordParser("controlled"),
 																							getKeywordParser("function"))),
@@ -633,7 +636,7 @@ public final class UASMParsers<N> {
 	 * FunctionDefinition ::= ControlledFunction | StaticFunction | DerivedFunction | MonitoredFunction | SharedFunction | OutFunction
 	 */
 	private void createFunctionDefinitionParser() {
-		createParser("FunctionDefinition", Parsers.or(	getParser("ControlledFunction"),
+		createParser(FUNCTION_DEFINITION, Parsers.or(	getParser(CONTROLLED_FUNCTION),
 														getParser("StaticFunction"),
 														getParser("DerivedFunction"),
 														getParser("MonitoredFunction"),
@@ -645,7 +648,7 @@ public final class UASMParsers<N> {
 	 * RuleDefinition ::= 'rule' IdRule ParameterDefinition? '=' Rule
 	 */
 	private void createRuleDefinitionParser() {
-		createArrayParser("RuleDefinition", Parsers.array(	getKeywordParser("rule"),
+		createArrayParser(RULE_DEFINITION, Parsers.array(	getKeywordParser("rule"),
 															getParser("IdRule"),
 															getParser("ParameterDefinition").optional(),
 															getOperatorParser("="),
