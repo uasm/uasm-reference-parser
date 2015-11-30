@@ -50,7 +50,10 @@ public final class UASMParsers<N> {
 	public static final String FUNCTION_DEFINITION = "FunctionDefinition";
 	public static final String ENUMERATE_DEFINITION = "EnumerateDefinition";
 	public static final String CONTROLLED_FUNCTION = "ControlledFunction";
-	private static final String EXTENDABLE_DOMAIN = "ExtendableDomain";
+	public static final String EXTENDABLE_DOMAIN = "ExtendableDomain";
+	public static final String RULE = "Rule";
+	public static final String UPDATE_RULE = "UpdateRule";
+	public static final String PAR_BLOCK_RULE = "ParBlock";
 	public static final String BASIC_DOMAIN = "BasicDomain";
 	private static final String STRING_LITERAL = "StringLiteral";
 	private static final String CHAR_LITERAL = "CharLiteral";
@@ -272,19 +275,19 @@ public final class UASMParsers<N> {
 				createFunctionDefinitionParser();
 			else if (RULE_DEFINITION.equals(nonTerminal))
 				createRuleDefinitionParser();
-			else if ("ParBlock".equals(nonTerminal))
+			else if (PAR_BLOCK_RULE.equals(nonTerminal))
 				createParBlockParser();
 			else if ("SeqBlock".equals(nonTerminal))
 				createSeqBlockParser();
 			else if ("SeqNext".equals(nonTerminal))
 				createSeqNextParser();
-			else if ("Rule".equals(nonTerminal))
+			else if (RULE.equals(nonTerminal))
 				createRuleParser();
 			else if ("CallRule".equals(nonTerminal))
 				createCallRuleParser();
 			else if ("SkipRule".equals(nonTerminal))
 				createSkipRuleParser();
-			else if ("UpdateRule".equals(nonTerminal))
+			else if (UPDATE_RULE.equals(nonTerminal))
 				createUpdateRuleParser();
 			else if ("ConditionalRule".equals(nonTerminal))
 				createConditionalRuleParser();
@@ -652,18 +655,18 @@ public final class UASMParsers<N> {
 															getParser("IdRule"),
 															getParser("ParameterDefinition").optional(),
 															getOperatorParser("="),
-															getParser("Rule")));
+															getParser(RULE)));
 	}
 	
 	/**
 	 * ParBlock ::= 'par' Rule+ 'endpar' | '{' Rule+ '}'
 	 */
 	private void createParBlockParser() {
-		createArrayParser("ParBlock", Parsers.or(	Parsers.array(	getKeywordParser("par"),
-																	plus(getParser("Rule")),
+		createArrayParser(PAR_BLOCK_RULE, Parsers.or(	Parsers.array(	getKeywordParser("par"),
+																	plus(getParser(RULE)),
 																	getKeywordParser("endpar")),
 													Parsers.array(	getOperatorParser("{"),
-																	plus(getParser("Rule")),
+																	plus(getParser(RULE)),
 																	getOperatorParser("}"))));
 	}
 	
@@ -672,10 +675,10 @@ public final class UASMParsers<N> {
 	 */
 	private void createSeqBlockParser() {
 		createArrayParser("SeqBlock", Parsers.or(	Parsers.array(	getKeywordParser("seq"),
-																	plus(getParser("Rule")),
+																	plus(getParser(RULE)),
 																	getKeywordParser("endseq")),
 													Parsers.array(	getOperatorParser("["),
-																	plus(getParser("Rule")),
+																	plus(getParser(RULE)),
 																	getOperatorParser("]"))));
 	}
 	
@@ -684,9 +687,9 @@ public final class UASMParsers<N> {
 	 */
 	private void createSeqNextParser() {
 		createArrayParser("SeqNext", Parsers.array(	getKeywordParser("seq"),
-													getParser("Rule"),
+													getParser(RULE),
 													plus(Parsers.array(	getKeywordParser("next"),
-																		getParser("Rule"))),
+																		getParser(RULE))),
 													getKeywordParser("endseq").optional()));
 	}
 	
@@ -695,7 +698,7 @@ public final class UASMParsers<N> {
 	 */
 	@SuppressWarnings("unchecked")
 	private void createRuleParser() {
-		createParser("Rule", Parsers.or(getParser("ParBlock"),
+		createParser(RULE, Parsers.or(getParser(PAR_BLOCK_RULE),
 										getParser("SeqBlock"),
 										getParser("SeqNext"),
 										getParser("CaseRule"),
@@ -708,7 +711,7 @@ public final class UASMParsers<N> {
 										getParser("LetRule"),
 										getParser("TurboReturnRule"),
 										getParser("WhileRule"),
-										getParser("UpdateRule"),
+										getParser(UPDATE_RULE),
 										getParser("SkipRule"),
 										getParser("CallRule"),
 										getParser("LocalRule"),
@@ -736,7 +739,7 @@ public final class UASMParsers<N> {
 	 * UpdateRule ::= LocationTerm ':=' Term
 	 */
 	private void createUpdateRuleParser() {
-		createArrayParser("UpdateRule", Parsers.array(	getParser("LocationTerm"),
+		createArrayParser(UPDATE_RULE, Parsers.array(	getParser("LocationTerm"),
 														getOperatorParser(":="),
 														getParser("Term")));
 	}
@@ -748,9 +751,9 @@ public final class UASMParsers<N> {
 		createArrayParser("ConditionalRule", Parsers.array(	getKeywordParser("if"),
 															getParser("Term"),
 															getKeywordParser("then"),
-															getParser("Rule"),
+															getParser(RULE),
 															Parsers.array(	getKeywordParser("else"),
-																			getParser("Rule")).optional(),
+																			getParser(RULE)).optional(),
 															getKeywordParser("endif").optional()));
 	}
 	
@@ -763,9 +766,9 @@ public final class UASMParsers<N> {
 													getKeywordParser("of"),
 													plus(Parsers.array(	getParser("Term"),
 																		getOperatorParser(":"),
-																		getParser("Rule"))),
+																		getParser(RULE))),
 													Parsers.array(	getKeywordParser("otherwise"),
-																	getParser("Rule")).optional(),
+																	getParser(RULE)).optional(),
 													getKeywordParser("endcase")));
 	}
 	
@@ -780,9 +783,9 @@ public final class UASMParsers<N> {
 														Parsers.array(	getKeywordParser("with"),
 																		getParser("Term")).optional(),
 														Parsers.array(	getKeywordParser("do"),
-																		getParser("Rule")),
+																		getParser(RULE)),
 														Parsers.array(	getKeywordParser("ifnone"),
-																		getParser("Rule")).optional(),
+																		getParser(RULE)).optional(),
 														getKeywordParser("endchoose").optional()));
 	}
 	
@@ -797,9 +800,9 @@ public final class UASMParsers<N> {
 														Parsers.array(	getKeywordParser("with"),
 																		getParser("Term")).optional(),
 														Parsers.array(	getKeywordParser("do"),
-																		getParser("Rule")),
+																		getParser(RULE)),
 														Parsers.array(	getKeywordParser("ifnone"),
-																		getParser("Rule")).optional(),
+																		getParser(RULE)).optional(),
 														getKeywordParser("endforall").optional()));
 	}
 	
@@ -812,7 +815,7 @@ public final class UASMParsers<N> {
 																			getKeywordParser("="),
 																			getParser("Term"))),
 													getKeywordParser("in"),
-													getParser("Rule")));
+													getParser(RULE)));
 	}
 	
 	/**
@@ -826,7 +829,7 @@ public final class UASMParsers<N> {
 														Parsers.array(	getKeywordParser("as"),
 																		getParser("VariableTerm")).optional(),
 														getKeywordParser("do"),
-														getParser("Rule")));
+														getParser(RULE)));
 	}
 	
 	/**
@@ -836,7 +839,7 @@ public final class UASMParsers<N> {
 		createArrayParser("ImportRule", Parsers.array(	getKeywordParser("import"),
 														getParser("VariableTerm"),
 														getKeywordParser("do"),
-														getParser("Rule")));
+														getParser(RULE)));
 	}
 	
 	/**
@@ -844,7 +847,7 @@ public final class UASMParsers<N> {
 	 */
 	private void createIterateRuleParser() {
 		createArrayParser("IterateRule", Parsers.array(	getKeywordParser("iterate"),
-														getParser("Rule")));
+														getParser(RULE)));
 	}
 	
 	/**
@@ -854,7 +857,7 @@ public final class UASMParsers<N> {
 		createArrayParser("WhileRule", Parsers.array(	getKeywordParser("while"),
 														getParser("Term"),
 														getKeywordParser("do"),
-														getParser("Rule")));
+														getParser(RULE)));
 	}
 	
 	/**
@@ -863,7 +866,7 @@ public final class UASMParsers<N> {
 	private void createTurboReturnRuleParser() {
 		createArrayParser("TurboReturnRule", Parsers.array(	getParser("LocationTerm"),
 															getOperatorParser("<-"),
-															getParser("Rule")));
+															getParser(RULE)));
 	}
 	
 	/**
@@ -878,7 +881,7 @@ public final class UASMParsers<N> {
 																				Parsers.array(	getKeywordParser("initially"),
 																								getParser("InitialFunctionDefinition")).optional())),
 														getKeywordParser("in"),
-														getParser("Rule")));
+														getParser(RULE)));
 	}
 	
 	/**
@@ -1096,7 +1099,7 @@ public final class UASMParsers<N> {
 		createArrayParser("ReturnTerm", Parsers.array(	getKeywordParser("return"),
 														getParser("FunctionTerm"),
 														getKeywordParser("in"),
-														getParser("Rule")));
+														getParser(RULE)));
 	}
 	
 	/**
