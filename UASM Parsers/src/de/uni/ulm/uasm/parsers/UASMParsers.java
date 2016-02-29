@@ -115,8 +115,12 @@ public final class UASMParsers<N> {
 	}
 	private static final HashMap<String, Integer> BINARY_OPERATORS = new HashMap<String, Integer>();
 	private static final HashMap<String, Integer> UNARY_OPERATORS = new HashMap<String, Integer>();
+	/*
+	 * Precedences taken from http://fmse.di.unimi.it/asmeta/download/AsmetaL_quickguide.html but
+	 * modified to reflect correct precedence of the power operator "^"
+	 */
 	static {
-		BINARY_OPERATORS.put("^", 8);
+		BINARY_OPERATORS.put("^", 9);
 		BINARY_OPERATORS.put("*", 7);
 		BINARY_OPERATORS.put("/", 7);
 		BINARY_OPERATORS.put("div", 7);
@@ -136,8 +140,8 @@ public final class UASMParsers<N> {
 		BINARY_OPERATORS.put("implies", 0);
 		BINARY_OPERATORS.put("iff", 0);
 		
-		UNARY_OPERATORS.put("+", 9);
-		UNARY_OPERATORS.put("-", 9);
+		UNARY_OPERATORS.put("+", 8);
+		UNARY_OPERATORS.put("-", 8);
 		UNARY_OPERATORS.put("not", 3);
 	}
 	private final ParseMapProvider<N> mapperProvider;
