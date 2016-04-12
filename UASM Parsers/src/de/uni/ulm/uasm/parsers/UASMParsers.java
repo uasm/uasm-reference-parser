@@ -527,11 +527,11 @@ public final class UASMParsers<N> {
 	}
 	
 	/**
-	 * DomainParameterDefinition ::= Domain ParameterDefinition
+	 * DomainParameterDefinition ::= Domain | ParameterDefinition
 	 */
 	private void createDomainParameterDefinitionParser() {
-		createArrayParser("DomainParameterDefinition", Parsers.array(	getParser("Domain"),
-																		getParser("ParameterDefinition")));
+		createParser("DomainParameterDefinition", Parsers.or(	getParser("Domain"),
+																getParser("ParameterDefinition")));
 	}
 	
 	/**
