@@ -1097,11 +1097,11 @@ public final class UASMParsers<N> {
 	}
 	
 	/**
-	 * ReturnTerm ::= 'return' FunctionTerm 'in' Rule
+	 * ReturnTerm ::= 'return' Term 'in' Rule
 	 */
 	private void createReturnTermParser() {
 		createArrayParser("ReturnTerm", Parsers.array(	getKeywordParser("return"),
-														getParser("FunctionTerm"),
+														getParser("Term"),
 														getKeywordParser("in"),
 														getParser(RULE)));
 	}
