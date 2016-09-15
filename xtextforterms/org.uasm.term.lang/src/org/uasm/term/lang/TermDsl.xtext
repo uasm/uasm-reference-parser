@@ -1,0 +1,240 @@
+grammar org.uasm.term.lang.TermDsl with org.eclipse.xtext.common.Terminals
+
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+
+generate termDsl "http://www.uasm.org/term/lang/TermDsl"
+
+// Split up for better compatibility with Parser
+// Term : BasicExpression | BasicExpression BinaryOperator BasicExpression | UnaryOperator BasicExpression;
+
+Term returns Expression:
+	CondTernaryExpression;
+
+/*CondTernaryExpression returns Expression:
+	CaseTernaryExpression
+	({CondTernaryExpression.cond=current} '?' then=BinaryExpression ':' else=BinaryExpression)*;
+*/
+
+CondTernaryExpression returns Expression:
+	ImpliesExpression
+	({CondTernaryExpression.cond=current} '?' then=ImpliesExpression ':' else=ImpliesExpression)*;
+
+//BinaryExpression returns Expression:  left = BasicExpression (op = BinaryOperator right = BasicExpression);
+// left recursion to menage the precedence of operators
+
+ImpliesExpression returns Expression:
+	OrExpression
+	({BinaryExpression.left=current} op= ('implies') right=OrExpression)* ;
+
+OrExpression returns Expression:
+	XorExpression
+	({BinaryExpression.left=current} op= ('or') right=XorExpression)* ;
+
+XorExpression returns Expression:
+	AndExpression
+	({BinaryExpression.left=current} op= ('xor') right=AndExpression)* ;
+
+AndExpression returns Expression:
+	EqualityExpression
+	({BinaryExpression.left=current} op= ('and') right=EqualityExpression)* ;
+	
+EqualityExpression returns Expression:
+	RelationExpression
+	({BinaryExpression.left=current} op= ('!=' | '=' ) right=RelationExpression)* ;
+
+RelationExpression returns Expression:
+	AddExpression
+	({BinaryExpression.left=current} op= ('<' | '>' | '<=' | '>=' | 'memberof') right=AddExpression)* ;
+	
+AddExpression returns Expression:
+	MultExpression
+	({BinaryExpression.left=current} op= ('+'| '-') right=MultExpression)* ;
+
+MultExpression returns Expression:
+	PowerExpression
+	({BinaryExpression.left=current} op= ('*'| '/' | 'mod' | 'div') right=PowerExpression)* ;
+	
+PowerExpression returns Expression:
+	UnaryExpression
+	({BinaryExpression.left=current} op= ('^') right=UnaryExpression)* ;
+
+UnaryExpression returns Expression:
+	{BooleanNegation} => op="not" expression=BasicExpression | /* right associativity */
+    {ArithmeticSigned} => op="-" expression=BasicExpression | /* right associativity */
+    BasicExpression;
+    
+//BasicExpression returns Expression: 
+//	{BasicTermExpr}=> basicT=BasicTerm | 
+//	{ParenthesisTermExpr} =>'(' term=Term ')';*/
+
+BasicExpression returns Expression: 
+	BasicTerm  | '(' Term ')';
+	
+BasicTerm:
+	(TupleTerm | LocationTerm | ComprehensionTerm | StructureTerm | PickTerm | ConditionalTerm | CaseTerm  | RuleAsTerm | ReturnTerm | ForAllTerm | ExistsTerm | LetTerm  
+	| Literal | TupleLiteral | SizeOfEnumerableTerm);
+	
+/**
+ * Added by ASMETA 
+ */
+TupleTerm: {TupleTerm}
+	'(' term+=Term (',' term+=Term)+ ')';
+
+FunctionTerm:
+	{FunctionTerm} function=IdFunction ('(' args=Term ')' | argsTuple=TupleTerm) ?;
+	
+EnumTerm:
+	ID;
+
+EnumerableTerm:
+	Term | dom=Domain;
+
+VariableTerm:
+	IdFunction;
+
+LocationTerm: {LocationTerm}
+	function = FunctionTerm | result = 'result';	
+	
+/* CharLiteral will be interpeted as StringLiteral in CoreASM as well */
+Literal:
+	IntervalLiteral | SetLiteral | ListLiteral | BagLiteral | MapLiteral | NumberLiteral | BooleanLiteral | KernelLiteral | StringLiteral | CharLiteral | EnumTerm ;
+
+BooleanLiteral: {BooleanLiteral}
+	val='true' | val='false';
+
+KernelLiteral: {KernelLiteral}
+	val='undef' | val='self';
+
+IntervalLiteral: {IntervalLiteral}
+	'['  start=Literal '..'  end = Literal ('step'  step=Literal)? ']';
+	
+SetLiteral : {SetLiteral}  '{' literal+=Literal (',' literal+=Literal)* '}' | '{''}';
+ListLiteral : {ListLiteral} '[' literal+=Literal (',' literal+=Literal)* ']' | '['']';
+BagLiteral : {BagLiteral} '<' literal+=Literal (',' literal+=Literal)* '>' | '<''>';
+MapLiteral : {MapLiteral} '{' (literal+=Literal '->' literal+=Literal) (',' literal+=Literal '->'literal+=Literal)* '}' | '{' '->' '}'  /* the second option is the empty map */;
+	
+ForAllTerm:
+	{ForAllTerm} 'forall' varTerm+=VariableTerm 'in' inTerm+=Term (',' varTerm+=VariableTerm 'in' inTerm+=Term)* 'holds'
+	withTerm=Term /* "with" is more consistent with the other statements than "holds" */;
+
+
+ ExistsTerm:
+	{ExistsTerm} 'exists' unique='unique'? varTerm+=VariableTerm 'in' inTerm+=Term (',' varTerm+=VariableTerm 'in' inTerm+=Term)* 'with' withTerm=Term;
+
+
+SizeOfEnumerableTerm: {SizeOfEnumerableTerm}
+	'|' enumTerm=EnumerableTerm '|';
+
+/**
+ * TODO: TRADUZIONE IN TOSTRING
+ */
+PickTerm : 'pick' varTerm=VariableTerm 'in' enumTerm=EnumerableTerm ('with' term=Term)?;
+
+ConditionalTerm:
+	'if' cond=Term 'then' thenTerm=Term 'else' elseTerm=Term 'endif'?;
+	// cond = Term '?' thenTerm = Term ':' elseTerm= Term;
+	
+CaseTerm:
+	'case' caseTerm=Term 'of' (term+=Term ':' termAction+=Term)+ ('otherwise' otherwiseTerm=Term)? 'endcase';
+
+/**
+ * Added by ASMETA
+ */	
+LetTerm: {LetTerm} 
+	'let' varTerm+=VariableTerm '=' term+=Term (',' varTerm+=VariableTerm '=' term+=Term)* 'in' body=Term;
+
+RuleAsTerm: {RuleAsTerm}
+	'@' rule=IdRule;
+
+/**
+ * TODO: TRADUZIONE IN TOSTRING
+ */
+ReturnTerm : {ReturnTerm}'return' term=Term 'in'; //rule=Rule;
+
+ComprehensionTerm : SetComprehensionTerm | ListComprehensionTerm | MapComprehensionTerm | BagComprehensionTerm | NumberRangeTerm;
+SetComprehensionTerm : {SetComprehensionTerm} '{' term=Term '|' varTerm+=VariableTerm 'in' enumTerm+=EnumerableTerm (',' varTerm+=VariableTerm 'in' enumTerm+=EnumerableTerm)* ('with' termWith=Term)? '}'; /* head of comprehension should be extended to support constructs like { x is a + b | a in A, b in B} */
+ListComprehensionTerm : {ListComprehensionTerm} '[' term=Term '|' varTerm+=VariableTerm 'in' enumTerm+=EnumerableTerm (',' varTerm+=VariableTerm 'in' enumTerm+=EnumerableTerm)* ('with' termWith=Term)? ']';
+/* with multiple generators, the last one is run first resp. first is fixed first
+example:
+[(x1,x2) | x1 in [1..3], x2 in [0,-1,-2]] --> [(1,0),(1,-1),(1,-2),(2,0),(2,-1),(2,-2),(3,0),(3,-1),(3,-2)]
+*/
+BagComprehensionTerm : {BagComprehensionTerm} '<' term=Term '|' varTerm+=VariableTerm 'in' enumTerm+=EnumerableTerm (',' varTerm+=VariableTerm 'in' enumTerm+=EnumerableTerm)* ('with' termWith=Term)? '>';
+MapComprehensionTerm : {MapComprehensionTerm} '{' term1=Term '->' term2=Term '|' varTerm+=VariableTerm 'in' enumTerm+=EnumerableTerm (',' varTerm+=VariableTerm 'in' enumTerm+=EnumerableTerm)* ('with' termWith=Term)? '}';
+NumberRangeTerm : {NumberRangeTerm}'['  start=Term '..'  end=Term ('step'  step=Term)? ']' /* short form for a list comprehension that constructs an ordered list of numbers within a given range */;
+
+//NumberRangeTerm : {NumberRangeTerm}'['  start=Term '..'  end=Term ('step'  step=Term)? ']' /* short form for a list comprehension that constructs an ordered list of numbers within a given range */;
+
+
+StructureTerm : SetTerm | ListTerm | BagTerm | MapTerm;
+SetTerm : {SetTerm}  '{' term+=Term (',' term+=Term)* '}' | '{''}';
+ListTerm : {ListTerm} '[' term+=Term (',' term+=Term)* ']' | '['']';
+BagTerm : {BagTerm} '<' term+=Term (',' term+=Term)* '>' | '<''>';
+MapTerm : {MapTerm} '{' (term+=Term '->' term+=Term) (',' term+=Term '->'term+=Term)* '}' | '{' '->' '}'  /* the second option is the empty map */;
+
+
+IdDomain:
+	ID;
+
+IdFunction:
+	ID;
+
+IdRule:
+	ID;
+
+StringLiteral:
+	{StringLiteral} //'"' [^"]* '"';
+	text=STN;
+
+CharLiteral : {CharLiteral}
+	text=STN; //CHAR and STRING are the same in Terminals.xtext definition
+
+	
+terminal STN: STRING; 
+/*introduce alternate terminals because STRING in the following cases was in conflict with STRING in BasicDomain
+ StringLiteral:
+	{StringLiteral} //'"' [^"]* '"';
+	text=STRING;
+
+CharLiteral : {CharLiteral}
+	text=STRING; //CHAR and STRING are the same in Terminals.xtext definition
+
+
+*/
+
+Domain:
+	StructuredDomain | BasicDomain | ExtendableDomain;
+
+StructuredDomain: {StructuredDomain}
+	type='SET' ('(' domainSet=Domain ')')? | type='BAG' ('('domainBag=Domain')')? | type='LIST' ('(' domainList=Domain ')')? | type='MAP' ('(' domainMap+=Domain ',' domainMap+=Domain ')')?;
+	/*  POWERSET, PRODUCT, BAG, QUEUES, STACK should be added in near or far future
+*/
+ExtendableDomain: {ExtendableDomain}
+	type='ANY' | type='AGENT' | type=IdDomain;
+
+/*
+ * http://stackoverflow.com/questions/14449040/xtext-cross-references-with-alternative
+ */
+ 
+ BasicDomain: {BasicDomain}
+ 	typeBasicDom=BasicDomainEnum ;
+ 	
+ 	
+enum BasicDomainEnum:/* String is not assigned to type otherwise xtext confuses it with TERMINAL STRING */
+	string='STRING' | number='NUMBER' /* for real */ | integer='INTEGER' | char='CHAR' | boolean='BOOLEAN' | rule='RULE';
+
+
+
+NumberLiteral:
+	{NumberLiteral} value=INT | valueDec=TK_FLOAT;
+	
+	
+TupleLiteral: {TupleLiteral}
+	'(' literals+=Literal (',' literals+=Literal)* ')';
+	
+
+terminal TK_FLOAT returns ecore::EBigDecimal:
+    (('0'..'9')+ '.' ('0'..'9')+)
+    (('e' | 'E') ('+' | '-')? ('0'..'9')+)?;
+    
+	
+	
