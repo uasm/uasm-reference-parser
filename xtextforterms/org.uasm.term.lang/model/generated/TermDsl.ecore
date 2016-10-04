@@ -2,7 +2,12 @@
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="termDsl" nsURI="http://www.uasm.org/term/lang/TermDsl" nsPrefix="termDsl">
   <eClassifiers xsi:type="ecore:EClass" name="Expression" eSuperTypes="#//EnumerableTerm"/>
-  <eClassifiers xsi:type="ecore:EClass" name="BasicTerm" eSuperTypes="#//Expression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="BasicTerm" eSuperTypes="#//Expression">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="index" eType="#//NumberLiteral"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="t" eType="#//TupleTerm"
+        containment="true"/>
+  </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="TupleTerm" eSuperTypes="#//BasicTerm">
     <eStructuralFeatures xsi:type="ecore:EReference" name="term" upperBound="-1" eType="#//Expression"
         containment="true"/>

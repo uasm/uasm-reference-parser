@@ -36,6 +36,24 @@ class TermDslParsingTest{
 		result = parseHelper.parse("result + 2")
 		print(result.toString + " type " + result.class.canonicalName)
 		Assert.assertNotNull(result)
+		//
+		result = parseHelper.parse("a = |B|")
+		print(result.toString + " type " + result.class.canonicalName)
+		Assert.assertNotNull(result)
+
+		result = parseHelper.parse("get_2(a,b)")
+		
+		result = parseHelper.parse("at((a,b),2) > at((a,b),2)")
+		result = parseHelper.parse("get_2(a,b)")
+		result = parseHelper.parse("getnth((a,b),2) > at((a,b),2)")
+		print(result.toString + " type " + result.class.canonicalName)
+		Assert.assertNotNull(result)
+		// set((a,b),x,c) = if (x == 1) then (c,  
+		result = parseHelper.parse("(a,c) = set_2((a,b),c)") // TRUE
+		result = parseHelper.parse("(a,c) = set((a,b),2,c)") // TRUE
+		result = parseHelper.parse("(a,c) = setnth((a,b),2,c)") // TRUE
+		print(result.toString + " type " + result.class.canonicalName)
+		Assert.assertNotNull(result)
 		
 	}
 

@@ -9,6 +9,13 @@ package org.uasm.term.lang.termDsl;
  * A representation of the model object '<em><b>Basic Term</b></em>'.
  * <!-- end-user-doc -->
  *
+ * <p>
+ * The following features are supported:
+ * </p>
+ * <ul>
+ *   <li>{@link org.uasm.term.lang.termDsl.BasicTerm#getIndex <em>Index</em>}</li>
+ *   <li>{@link org.uasm.term.lang.termDsl.BasicTerm#getT <em>T</em>}</li>
+ * </ul>
  *
  * @see org.uasm.term.lang.termDsl.TermDslPackage#getBasicTerm()
  * @model
@@ -16,4 +23,56 @@ package org.uasm.term.lang.termDsl;
  */
 public interface BasicTerm extends Expression
 {
+  /**
+   * Returns the value of the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <p>
+   * If the meaning of the '<em>Index</em>' containment reference isn't clear,
+   * there really should be more of a description here...
+   * </p>
+   * <!-- end-user-doc -->
+   * @return the value of the '<em>Index</em>' containment reference.
+   * @see #setIndex(NumberLiteral)
+   * @see org.uasm.term.lang.termDsl.TermDslPackage#getBasicTerm_Index()
+   * @model containment="true"
+   * @generated
+   */
+  NumberLiteral getIndex();
+
+  /**
+   * Sets the value of the '{@link org.uasm.term.lang.termDsl.BasicTerm#getIndex <em>Index</em>}' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @param value the new value of the '<em>Index</em>' containment reference.
+   * @see #getIndex()
+   * @generated
+   */
+  void setIndex(NumberLiteral value);
+
+  /**
+   * Returns the value of the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <p>
+   * If the meaning of the '<em>T</em>' containment reference isn't clear,
+   * there really should be more of a description here...
+   * </p>
+   * <!-- end-user-doc -->
+   * @return the value of the '<em>T</em>' containment reference.
+   * @see #setT(TupleTerm)
+   * @see org.uasm.term.lang.termDsl.TermDslPackage#getBasicTerm_T()
+   * @model containment="true"
+   * @generated
+   */
+  TupleTerm getT();
+
+  /**
+   * Sets the value of the '{@link org.uasm.term.lang.termDsl.BasicTerm#getT <em>T</em>}' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @param value the new value of the '<em>T</em>' containment reference.
+   * @see #getT()
+   * @generated
+   */
+  void setT(TupleTerm value);
+
 } // BasicTerm

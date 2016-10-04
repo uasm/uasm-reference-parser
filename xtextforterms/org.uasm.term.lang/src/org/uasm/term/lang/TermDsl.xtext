@@ -71,8 +71,11 @@ BasicExpression returns Expression:
 	BasicTerm  | '(' Term ')';
 	
 BasicTerm:
-	(TupleTerm | LocationTerm | ComprehensionTerm | StructureTerm | PickTerm | ConditionalTerm | CaseTerm  | RuleAsTerm | ReturnTerm | ForAllTerm | ExistsTerm | LetTerm  
+	( GetTupleTerm|TupleTerm | LocationTerm | ComprehensionTerm | StructureTerm | PickTerm | ConditionalTerm | CaseTerm  | RuleAsTerm | ReturnTerm | ForAllTerm | ExistsTerm | LetTerm  
 	| Literal | TupleLiteral | SizeOfEnumerableTerm);
+
+GetTupleTerm: 
+	'get_' index = NumberLiteral t=TupleTerm;
 	
 /**
  * Added by ASMETA 

@@ -1163,15 +1163,60 @@ ruleBasicTerm returns [EObject current=null]
 	leaveRule();
 }:
 	(
+		(
+			otherlv_0='get_'
+			{
+				newLeafNode(otherlv_0, grammarAccess.getBasicTermAccess().getGet_Keyword_0_0());
+			}
+			(
+				(
+					{
+						newCompositeNode(grammarAccess.getBasicTermAccess().getIndexNumberLiteralParserRuleCall_0_1_0());
+					}
+					lv_index_1_0=ruleNumberLiteral
+					{
+						if ($current==null) {
+							$current = createModelElementForParent(grammarAccess.getBasicTermRule());
+						}
+						set(
+							$current,
+							"index",
+							lv_index_1_0,
+							"org.uasm.term.lang.TermDsl.NumberLiteral");
+						afterParserOrEnumRuleCall();
+					}
+				)
+			)
+			(
+				(
+					{
+						newCompositeNode(grammarAccess.getBasicTermAccess().getTTupleTermParserRuleCall_0_2_0());
+					}
+					lv_t_2_0=ruleTupleTerm
+					{
+						if ($current==null) {
+							$current = createModelElementForParent(grammarAccess.getBasicTermRule());
+						}
+						set(
+							$current,
+							"t",
+							lv_t_2_0,
+							"org.uasm.term.lang.TermDsl.TupleTerm");
+						afterParserOrEnumRuleCall();
+					}
+				)
+			)
+		)
+		    |
 		{
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getTupleTermParserRuleCall_0());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getTupleTermParserRuleCall_1());
 		}
-		this_TupleTerm_0=ruleTupleTerm
+		this_TupleTerm_3=ruleTupleTerm
 		{
-			$current = $this_TupleTerm_0.current;
+			$current = $this_TupleTerm_3.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1179,11 +1224,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getLocationTermParserRuleCall_1());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getLocationTermParserRuleCall_2());
 		}
-		this_LocationTerm_1=ruleLocationTerm
+		this_LocationTerm_4=ruleLocationTerm
 		{
-			$current = $this_LocationTerm_1.current;
+			$current = $this_LocationTerm_4.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1191,11 +1236,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getComprehensionTermParserRuleCall_2());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getComprehensionTermParserRuleCall_3());
 		}
-		this_ComprehensionTerm_2=ruleComprehensionTerm
+		this_ComprehensionTerm_5=ruleComprehensionTerm
 		{
-			$current = $this_ComprehensionTerm_2.current;
+			$current = $this_ComprehensionTerm_5.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1203,11 +1248,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getStructureTermParserRuleCall_3());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getStructureTermParserRuleCall_4());
 		}
-		this_StructureTerm_3=ruleStructureTerm
+		this_StructureTerm_6=ruleStructureTerm
 		{
-			$current = $this_StructureTerm_3.current;
+			$current = $this_StructureTerm_6.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1215,11 +1260,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getPickTermParserRuleCall_4());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getPickTermParserRuleCall_5());
 		}
-		this_PickTerm_4=rulePickTerm
+		this_PickTerm_7=rulePickTerm
 		{
-			$current = $this_PickTerm_4.current;
+			$current = $this_PickTerm_7.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1227,11 +1272,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getConditionalTermParserRuleCall_5());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getConditionalTermParserRuleCall_6());
 		}
-		this_ConditionalTerm_5=ruleConditionalTerm
+		this_ConditionalTerm_8=ruleConditionalTerm
 		{
-			$current = $this_ConditionalTerm_5.current;
+			$current = $this_ConditionalTerm_8.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1239,11 +1284,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getCaseTermParserRuleCall_6());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getCaseTermParserRuleCall_7());
 		}
-		this_CaseTerm_6=ruleCaseTerm
+		this_CaseTerm_9=ruleCaseTerm
 		{
-			$current = $this_CaseTerm_6.current;
+			$current = $this_CaseTerm_9.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1251,11 +1296,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getRuleAsTermParserRuleCall_7());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getRuleAsTermParserRuleCall_8());
 		}
-		this_RuleAsTerm_7=ruleRuleAsTerm
+		this_RuleAsTerm_10=ruleRuleAsTerm
 		{
-			$current = $this_RuleAsTerm_7.current;
+			$current = $this_RuleAsTerm_10.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1263,11 +1308,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getReturnTermParserRuleCall_8());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getReturnTermParserRuleCall_9());
 		}
-		this_ReturnTerm_8=ruleReturnTerm
+		this_ReturnTerm_11=ruleReturnTerm
 		{
-			$current = $this_ReturnTerm_8.current;
+			$current = $this_ReturnTerm_11.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1275,11 +1320,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getForAllTermParserRuleCall_9());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getForAllTermParserRuleCall_10());
 		}
-		this_ForAllTerm_9=ruleForAllTerm
+		this_ForAllTerm_12=ruleForAllTerm
 		{
-			$current = $this_ForAllTerm_9.current;
+			$current = $this_ForAllTerm_12.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1287,11 +1332,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getExistsTermParserRuleCall_10());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getExistsTermParserRuleCall_11());
 		}
-		this_ExistsTerm_10=ruleExistsTerm
+		this_ExistsTerm_13=ruleExistsTerm
 		{
-			$current = $this_ExistsTerm_10.current;
+			$current = $this_ExistsTerm_13.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1299,11 +1344,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getLetTermParserRuleCall_11());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getLetTermParserRuleCall_12());
 		}
-		this_LetTerm_11=ruleLetTerm
+		this_LetTerm_14=ruleLetTerm
 		{
-			$current = $this_LetTerm_11.current;
+			$current = $this_LetTerm_14.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1311,11 +1356,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getLiteralParserRuleCall_12());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getLiteralParserRuleCall_13());
 		}
-		this_Literal_12=ruleLiteral
+		this_Literal_15=ruleLiteral
 		{
-			$current = $this_Literal_12.current;
+			$current = $this_Literal_15.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1323,11 +1368,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getTupleLiteralParserRuleCall_13());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getTupleLiteralParserRuleCall_14());
 		}
-		this_TupleLiteral_13=ruleTupleLiteral
+		this_TupleLiteral_16=ruleTupleLiteral
 		{
-			$current = $this_TupleLiteral_13.current;
+			$current = $this_TupleLiteral_16.current;
 			afterParserOrEnumRuleCall();
 		}
 		    |
@@ -1335,11 +1380,11 @@ ruleBasicTerm returns [EObject current=null]
 			/* */
 		}
 		{
-			newCompositeNode(grammarAccess.getBasicTermAccess().getSizeOfEnumerableTermParserRuleCall_14());
+			newCompositeNode(grammarAccess.getBasicTermAccess().getSizeOfEnumerableTermParserRuleCall_15());
 		}
-		this_SizeOfEnumerableTerm_14=ruleSizeOfEnumerableTerm
+		this_SizeOfEnumerableTerm_17=ruleSizeOfEnumerableTerm
 		{
-			$current = $this_SizeOfEnumerableTerm_14.current;
+			$current = $this_SizeOfEnumerableTerm_17.current;
 			afterParserOrEnumRuleCall();
 		}
 	)

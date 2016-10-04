@@ -86,6 +86,7 @@ public class TermDslParser extends AbstractContentAssistParser {
 					put(grammarAccess.getUnaryExpressionAccess().getGroup_0(), "rule__UnaryExpression__Group_0__0");
 					put(grammarAccess.getUnaryExpressionAccess().getGroup_1(), "rule__UnaryExpression__Group_1__0");
 					put(grammarAccess.getBasicExpressionAccess().getGroup_1(), "rule__BasicExpression__Group_1__0");
+					put(grammarAccess.getBasicTermAccess().getGroup_0(), "rule__BasicTerm__Group_0__0");
 					put(grammarAccess.getTupleTermAccess().getGroup(), "rule__TupleTerm__Group__0");
 					put(grammarAccess.getTupleTermAccess().getGroup_3(), "rule__TupleTerm__Group_3__0");
 					put(grammarAccess.getFunctionTermAccess().getGroup(), "rule__FunctionTerm__Group__0");
@@ -189,6 +190,8 @@ public class TermDslParser extends AbstractContentAssistParser {
 					put(grammarAccess.getUnaryExpressionAccess().getExpressionAssignment_0_2(), "rule__UnaryExpression__ExpressionAssignment_0_2");
 					put(grammarAccess.getUnaryExpressionAccess().getOpAssignment_1_1(), "rule__UnaryExpression__OpAssignment_1_1");
 					put(grammarAccess.getUnaryExpressionAccess().getExpressionAssignment_1_2(), "rule__UnaryExpression__ExpressionAssignment_1_2");
+					put(grammarAccess.getBasicTermAccess().getIndexAssignment_0_1(), "rule__BasicTerm__IndexAssignment_0_1");
+					put(grammarAccess.getBasicTermAccess().getTAssignment_0_2(), "rule__BasicTerm__TAssignment_0_2");
 					put(grammarAccess.getTupleTermAccess().getTermAssignment_2(), "rule__TupleTerm__TermAssignment_2");
 					put(grammarAccess.getTupleTermAccess().getTermAssignment_3_1(), "rule__TupleTerm__TermAssignment_3_1");
 					put(grammarAccess.getFunctionTermAccess().getFunctionAssignment_1(), "rule__FunctionTerm__FunctionAssignment_1");

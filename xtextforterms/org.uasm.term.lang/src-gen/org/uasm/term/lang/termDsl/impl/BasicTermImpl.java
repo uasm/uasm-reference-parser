@@ -3,20 +3,55 @@
  */
 package org.uasm.term.lang.termDsl.impl;
 
+import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.notify.NotificationChain;
+
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.InternalEObject;
+
+import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
 import org.uasm.term.lang.termDsl.BasicTerm;
+import org.uasm.term.lang.termDsl.NumberLiteral;
 import org.uasm.term.lang.termDsl.TermDslPackage;
+import org.uasm.term.lang.termDsl.TupleTerm;
 
 /**
  * <!-- begin-user-doc -->
  * An implementation of the model object '<em><b>Basic Term</b></em>'.
  * <!-- end-user-doc -->
+ * <p>
+ * The following features are implemented:
+ * </p>
+ * <ul>
+ *   <li>{@link org.uasm.term.lang.termDsl.impl.BasicTermImpl#getIndex <em>Index</em>}</li>
+ *   <li>{@link org.uasm.term.lang.termDsl.impl.BasicTermImpl#getT <em>T</em>}</li>
+ * </ul>
  *
  * @generated
  */
 public class BasicTermImpl extends ExpressionImpl implements BasicTerm
 {
+  /**
+   * The cached value of the '{@link #getIndex() <em>Index</em>}' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @see #getIndex()
+   * @generated
+   * @ordered
+   */
+  protected NumberLiteral index;
+
+  /**
+   * The cached value of the '{@link #getT() <em>T</em>}' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @see #getT()
+   * @generated
+   * @ordered
+   */
+  protected TupleTerm t;
+
   /**
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -36,6 +71,196 @@ public class BasicTermImpl extends ExpressionImpl implements BasicTerm
   protected EClass eStaticClass()
   {
     return TermDslPackage.Literals.BASIC_TERM;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public NumberLiteral getIndex()
+  {
+    return index;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public NotificationChain basicSetIndex(NumberLiteral newIndex, NotificationChain msgs)
+  {
+    NumberLiteral oldIndex = index;
+    index = newIndex;
+    if (eNotificationRequired())
+    {
+      ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, TermDslPackage.BASIC_TERM__INDEX, oldIndex, newIndex);
+      if (msgs == null) msgs = notification; else msgs.add(notification);
+    }
+    return msgs;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public void setIndex(NumberLiteral newIndex)
+  {
+    if (newIndex != index)
+    {
+      NotificationChain msgs = null;
+      if (index != null)
+        msgs = ((InternalEObject)index).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TermDslPackage.BASIC_TERM__INDEX, null, msgs);
+      if (newIndex != null)
+        msgs = ((InternalEObject)newIndex).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - TermDslPackage.BASIC_TERM__INDEX, null, msgs);
+      msgs = basicSetIndex(newIndex, msgs);
+      if (msgs != null) msgs.dispatch();
+    }
+    else if (eNotificationRequired())
+      eNotify(new ENotificationImpl(this, Notification.SET, TermDslPackage.BASIC_TERM__INDEX, newIndex, newIndex));
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public TupleTerm getT()
+  {
+    return t;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public NotificationChain basicSetT(TupleTerm newT, NotificationChain msgs)
+  {
+    TupleTerm oldT = t;
+    t = newT;
+    if (eNotificationRequired())
+    {
+      ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, TermDslPackage.BASIC_TERM__T, oldT, newT);
+      if (msgs == null) msgs = notification; else msgs.add(notification);
+    }
+    return msgs;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public void setT(TupleTerm newT)
+  {
+    if (newT != t)
+    {
+      NotificationChain msgs = null;
+      if (t != null)
+        msgs = ((InternalEObject)t).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - TermDslPackage.BASIC_TERM__T, null, msgs);
+      if (newT != null)
+        msgs = ((InternalEObject)newT).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - TermDslPackage.BASIC_TERM__T, null, msgs);
+      msgs = basicSetT(newT, msgs);
+      if (msgs != null) msgs.dispatch();
+    }
+    else if (eNotificationRequired())
+      eNotify(new ENotificationImpl(this, Notification.SET, TermDslPackage.BASIC_TERM__T, newT, newT));
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
+  public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs)
+  {
+    switch (featureID)
+    {
+      case TermDslPackage.BASIC_TERM__INDEX:
+        return basicSetIndex(null, msgs);
+      case TermDslPackage.BASIC_TERM__T:
+        return basicSetT(null, msgs);
+    }
+    return super.eInverseRemove(otherEnd, featureID, msgs);
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
+  public Object eGet(int featureID, boolean resolve, boolean coreType)
+  {
+    switch (featureID)
+    {
+      case TermDslPackage.BASIC_TERM__INDEX:
+        return getIndex();
+      case TermDslPackage.BASIC_TERM__T:
+        return getT();
+    }
+    return super.eGet(featureID, resolve, coreType);
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
+  public void eSet(int featureID, Object newValue)
+  {
+    switch (featureID)
+    {
+      case TermDslPackage.BASIC_TERM__INDEX:
+        setIndex((NumberLiteral)newValue);
+        return;
+      case TermDslPackage.BASIC_TERM__T:
+        setT((TupleTerm)newValue);
+        return;
+    }
+    super.eSet(featureID, newValue);
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
+  public void eUnset(int featureID)
+  {
+    switch (featureID)
+    {
+      case TermDslPackage.BASIC_TERM__INDEX:
+        setIndex((NumberLiteral)null);
+        return;
+      case TermDslPackage.BASIC_TERM__T:
+        setT((TupleTerm)null);
+        return;
+    }
+    super.eUnset(featureID);
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
+  public boolean eIsSet(int featureID)
+  {
+    switch (featureID)
+    {
+      case TermDslPackage.BASIC_TERM__INDEX:
+        return index != null;
+      case TermDslPackage.BASIC_TERM__T:
+        return t != null;
+    }
+    return super.eIsSet(featureID);
   }
 
 } //BasicTermImpl

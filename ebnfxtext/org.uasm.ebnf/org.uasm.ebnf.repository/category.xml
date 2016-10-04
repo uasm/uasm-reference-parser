@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+	<feature id="org.uasm.ebnf.feature" version="0.0.0">
+		<category name="main"/>
+	</feature>
+	<feature id="org.uasm.ebnf.feature.source" version="0.0.0">
+		<category name="main.source"/>
+	</feature>
+	<category-def name="main" label="EBNFLang"/>
+	<category-def name="main.source" label="EBNFLang (Sources)"/>
+</site>

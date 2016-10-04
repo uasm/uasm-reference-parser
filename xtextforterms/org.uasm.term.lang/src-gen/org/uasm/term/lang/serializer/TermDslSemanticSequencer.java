@@ -20,6 +20,7 @@ import org.uasm.term.lang.termDsl.BagComprehensionTerm;
 import org.uasm.term.lang.termDsl.BagLiteral;
 import org.uasm.term.lang.termDsl.BagTerm;
 import org.uasm.term.lang.termDsl.BasicDomain;
+import org.uasm.term.lang.termDsl.BasicTerm;
 import org.uasm.term.lang.termDsl.BinaryExpression;
 import org.uasm.term.lang.termDsl.BooleanLiteral;
 import org.uasm.term.lang.termDsl.BooleanNegation;
@@ -85,6 +86,9 @@ public class TermDslSemanticSequencer extends AbstractDelegatingSemanticSequence
 				return; 
 			case TermDslPackage.BASIC_DOMAIN:
 				sequence_BasicDomain(context, (BasicDomain) semanticObject); 
+				return; 
+			case TermDslPackage.BASIC_TERM:
+				sequence_BasicTerm(context, (BasicTerm) semanticObject); 
 				return; 
 			case TermDslPackage.BINARY_EXPRESSION:
 				sequence_AddExpression_AndExpression_EqualityExpression_ImpliesExpression_MultExpression_OrExpression_PowerExpression_RelationExpression_XorExpression(context, (BinaryExpression) semanticObject); 
@@ -370,6 +374,51 @@ public class TermDslSemanticSequencer extends AbstractDelegatingSemanticSequence
 		}
 		SequenceFeeder feeder = createSequencerFeeder(context, semanticObject);
 		feeder.accept(grammarAccess.getBasicDomainAccess().getTypeBasicDomBasicDomainEnumEnumRuleCall_1_0(), semanticObject.getTypeBasicDom());
+		feeder.finish();
+	}
+	
+	
+	/**
+	 * Contexts:
+	 *     Term returns BasicTerm
+	 *     CondTernaryExpression returns BasicTerm
+	 *     CondTernaryExpression.CondTernaryExpression_1_0 returns BasicTerm
+	 *     ImpliesExpression returns BasicTerm
+	 *     ImpliesExpression.BinaryExpression_1_0 returns BasicTerm
+	 *     OrExpression returns BasicTerm
+	 *     OrExpression.BinaryExpression_1_0 returns BasicTerm
+	 *     XorExpression returns BasicTerm
+	 *     XorExpression.BinaryExpression_1_0 returns BasicTerm
+	 *     AndExpression returns BasicTerm
+	 *     AndExpression.BinaryExpression_1_0 returns BasicTerm
+	 *     EqualityExpression returns BasicTerm
+	 *     EqualityExpression.BinaryExpression_1_0 returns BasicTerm
+	 *     RelationExpression returns BasicTerm
+	 *     RelationExpression.BinaryExpression_1_0 returns BasicTerm
+	 *     AddExpression returns BasicTerm
+	 *     AddExpression.BinaryExpression_1_0 returns BasicTerm
+	 *     MultExpression returns BasicTerm
+	 *     MultExpression.BinaryExpression_1_0 returns BasicTerm
+	 *     PowerExpression returns BasicTerm
+	 *     PowerExpression.BinaryExpression_1_0 returns BasicTerm
+	 *     UnaryExpression returns BasicTerm
+	 *     BasicExpression returns BasicTerm
+	 *     BasicTerm returns BasicTerm
+	 *     EnumerableTerm returns BasicTerm
+	 *
+	 * Constraint:
+	 *     (index=NumberLiteral t=TupleTerm)
+	 */
+	protected void sequence_BasicTerm(ISerializationContext context, BasicTerm semanticObject) {
+		if (errorAcceptor != null) {
+			if (transientValues.isValueTransient(semanticObject, TermDslPackage.Literals.BASIC_TERM__INDEX) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, TermDslPackage.Literals.BASIC_TERM__INDEX));
+			if (transientValues.isValueTransient(semanticObject, TermDslPackage.Literals.BASIC_TERM__T) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, TermDslPackage.Literals.BASIC_TERM__T));
+		}
+		SequenceFeeder feeder = createSequencerFeeder(context, semanticObject);
+		feeder.accept(grammarAccess.getBasicTermAccess().getIndexNumberLiteralParserRuleCall_0_1_0(), semanticObject.getIndex());
+		feeder.accept(grammarAccess.getBasicTermAccess().getTTupleTermParserRuleCall_0_2_0(), semanticObject.getT());
 		feeder.finish();
 	}
 	

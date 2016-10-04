@@ -1,0 +1,95 @@
+grammar org.uasm.ebnf.EBNFLang with org.eclipse.xtext.common.Terminals
+
+// Grammar definition of EBNF according to ISO/IEC 13250-6, see: http://www.iso.org/
+generate eBNFLang "http://www.uasm.org/ebnf/EBNFLang"
+
+//grammar org.eclipse.xtext.Ebnf hidden (WS, COMMENT)
+ 
+//generate ebnf "http://www.eclipse.org/xtext/Ebnf"
+ 
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+ 
+EbnfGrammar:
+    {EbnfGrammar} // Enforce object creation
+    rules+=ProductionRule*;
+ 
+ProductionRule:
+    name=NAME '=' expr=Expression ';';
+ 
+Expression:
+    Expression_Alternative;
+ 
+// The operator | defines alternatives. It has got the lowest priority and is left associative
+Expression_Alternative returns Expression:
+    Expression_Concatenation ({Expression_Alternative.elements+=current} ('|' elements+=Expression_Concatenation)+)?;
+ 
+// The operator , concatenates two or more symbols. It has got a higher priority than the alternative and is left associative, too
+Expression_Concatenation returns Expression:
+    Expression_Exception ({Expression_Concatenation.elements+=current} (',' elements+=Expression_Exception)+)?;
+ 
+// The operator - defines an exception and substracts a symbol from a set. It has got the highest priority of all operators
+Expression_Exception returns Expression:
+    Expression_Repetition ({Expression_Exception.left=current} '-' right=Expression_Repetition)*;
+ 
+// The operator * defines an exception and substracts a symbol from a set. It has got the highest priority of all operators
+Expression_Repetition returns Expression:
+    Expression_Terminal |
+    ({Expression_Repetition} repetitions=NUMBER '*' expr=Expression_Terminal);
+ 
+// The parts of a rule can be
+// - a reference pointing to another rule
+// - a terminal symbol
+// - a special sequence (non standardized)
+// - a group (repetition, optional or simple group)
+Expression_Terminal returns Expression:
+    Expression_Rule_Reference |
+    Expression_Terminal_Symbol |
+    Expression_Repetition_Group |
+    Expression_Optional_Group |
+    Expression_Group |
+    Expression_Special_Sequence;
+ 
+// Reference another rule by its name
+Expression_Rule_Reference returns Expression:
+    {Expression_Rule_Reference} rule=[ProductionRule|NAME];
+ 
+// A special sequence
+Expression_Special_Sequence returns Expression:
+    {Expression_Special_Sequence} text=SPECIAL_SEQUENCE;
+ 
+// A terminal symbol is a string which can be enclosed within ' or "
+Expression_Terminal_Symbol returns Expression:
+    {Expression_Terminal_Symbol} text=TERMINAL_SYMBOL;
+ 
+// An expression enclosed within curly brackets means that this part can be repeated 0...n times. If the brackets are followed by an - the minimum number of repetitions is 1
+Expression_Repetition_Group returns Expression:
+    {Expression_Repetition_Group} '{' expr=Expression '}' (atLeastOne?='-')?;
+ 
+// An expression enclosed within brackets means that this part is optional
+Expression_Optional_Group returns Expression:
+    {Expression_Optional_Group} '[' expr=Expression ']';
+ 
+// Parts of an expression can be put in paranthesis to influence the parsing order
+Expression_Group returns Expression:
+    {Expression_Group} '(' expr=Expression ')';
+ 
+// Comments in EBNF are placed within (* and *)
+terminal COMMENT returns ecore::EString:
+    '(*' -> '*)';
+ 
+// A number >0
+terminal NUMBER returns ecore::EInt:
+    '1'..'9' ('0'..'9')*;
+ 
+// A name of a rules (need to start and end with a non whitespace character). This differs from the original EBNF as no blank are allowed in order to simplify this grammar definition
+terminal NAME returns ecore::EString:
+    ('a'..'z' | 'A'..'Z' | '_')+;
+ 
+// The contents of a terminal symbol, at least one character long
+terminal TERMINAL_SYMBOL returns ecore::EString:
+    ( '"'  (!'"')+ '"'  ) |
+    ( '\'' (!'\'')+ '\'' );
+ 
+// A (non-standardized) special sequence, at least one character long
+terminal SPECIAL_SEQUENCE returns ecore::EString:
+    ( '?'  (!'?')+ '?'  );

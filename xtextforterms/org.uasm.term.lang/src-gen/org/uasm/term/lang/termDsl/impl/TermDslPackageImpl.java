@@ -486,6 +486,26 @@ public class TermDslPackageImpl extends EPackageImpl implements TermDslPackage
    * <!-- end-user-doc -->
    * @generated
    */
+  public EReference getBasicTerm_Index()
+  {
+    return (EReference)basicTermEClass.getEStructuralFeatures().get(0);
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public EReference getBasicTerm_T()
+  {
+    return (EReference)basicTermEClass.getEStructuralFeatures().get(1);
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
   public EClass getTupleTerm()
   {
     return tupleTermEClass;
@@ -1784,6 +1804,8 @@ public class TermDslPackageImpl extends EPackageImpl implements TermDslPackage
     expressionEClass = createEClass(EXPRESSION);
 
     basicTermEClass = createEClass(BASIC_TERM);
+    createEReference(basicTermEClass, BASIC_TERM__INDEX);
+    createEReference(basicTermEClass, BASIC_TERM__T);
 
     tupleTermEClass = createEClass(TUPLE_TERM);
     createEReference(tupleTermEClass, TUPLE_TERM__TERM);
@@ -2036,6 +2058,8 @@ public class TermDslPackageImpl extends EPackageImpl implements TermDslPackage
     initEClass(expressionEClass, Expression.class, "Expression", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 
     initEClass(basicTermEClass, BasicTerm.class, "BasicTerm", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+    initEReference(getBasicTerm_Index(), this.getNumberLiteral(), null, "index", null, 0, 1, BasicTerm.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+    initEReference(getBasicTerm_T(), this.getTupleTerm(), null, "t", null, 0, 1, BasicTerm.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
     initEClass(tupleTermEClass, TupleTerm.class, "TupleTerm", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
     initEReference(getTupleTerm_Term(), this.getExpression(), null, "term", null, 0, -1, TupleTerm.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

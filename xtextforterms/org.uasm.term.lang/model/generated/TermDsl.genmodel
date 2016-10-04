@@ -15,7 +15,10 @@
       <genEnumLiterals ecoreEnumLiteral="TermDsl.ecore#//BasicDomainEnum/rule"/>
     </genEnums>
     <genClasses ecoreClass="TermDsl.ecore#//Expression"/>
-    <genClasses ecoreClass="TermDsl.ecore#//BasicTerm"/>
+    <genClasses ecoreClass="TermDsl.ecore#//BasicTerm">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TermDsl.ecore#//BasicTerm/index"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TermDsl.ecore#//BasicTerm/t"/>
+    </genClasses>
     <genClasses ecoreClass="TermDsl.ecore#//TupleTerm">
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TermDsl.ecore#//TupleTerm/term"/>
     </genClasses>

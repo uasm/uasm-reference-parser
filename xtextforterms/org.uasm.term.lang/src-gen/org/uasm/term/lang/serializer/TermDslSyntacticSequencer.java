@@ -85,6 +85,7 @@ public class TermDslSyntacticSequencer extends AbstractSyntacticSequencer {
 	 *     (rule start) (ambiguity) 'exists' unique='unique'
 	 *     (rule start) (ambiguity) 'exists' varTerm+=VariableTerm
 	 *     (rule start) (ambiguity) 'forall' varTerm+=VariableTerm
+	 *     (rule start) (ambiguity) 'get_' index=NumberLiteral
 	 *     (rule start) (ambiguity) 'if' cond=Term
 	 *     (rule start) (ambiguity) 'let' varTerm+=VariableTerm
 	 *     (rule start) (ambiguity) 'pick' varTerm=VariableTerm

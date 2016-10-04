@@ -134,13 +134,31 @@ public interface TermDslPackage extends EPackage
   int BASIC_TERM__DOM = EXPRESSION__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int BASIC_TERM__INDEX = EXPRESSION_FEATURE_COUNT + 0;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int BASIC_TERM__T = EXPRESSION_FEATURE_COUNT + 1;
+
+  /**
    * The number of structural features of the '<em>Basic Term</em>' class.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @generated
    * @ordered
    */
-  int BASIC_TERM_FEATURE_COUNT = EXPRESSION_FEATURE_COUNT + 0;
+  int BASIC_TERM_FEATURE_COUNT = EXPRESSION_FEATURE_COUNT + 2;
 
   /**
    * The meta object id for the '{@link org.uasm.term.lang.termDsl.impl.TupleTermImpl <em>Tuple Term</em>}' class.
@@ -160,6 +178,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int TUPLE_TERM__DOM = BASIC_TERM__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int TUPLE_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int TUPLE_TERM__T = BASIC_TERM__T;
 
   /**
    * The feature id for the '<em><b>Term</b></em>' containment reference list.
@@ -245,6 +281,24 @@ public interface TermDslPackage extends EPackage
   int LOCATION_TERM__DOM = BASIC_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LOCATION_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LOCATION_TERM__T = BASIC_TERM__T;
+
+  /**
    * The feature id for the '<em><b>Function</b></em>' containment reference.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -291,6 +345,24 @@ public interface TermDslPackage extends EPackage
   int LITERAL__DOM = BASIC_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LITERAL__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LITERAL__T = BASIC_TERM__T;
+
+  /**
    * The number of structural features of the '<em>Literal</em>' class.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -317,6 +389,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int BOOLEAN_LITERAL__DOM = LITERAL__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int BOOLEAN_LITERAL__INDEX = LITERAL__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int BOOLEAN_LITERAL__T = LITERAL__T;
 
   /**
    * The feature id for the '<em><b>Val</b></em>' attribute.
@@ -356,6 +446,24 @@ public interface TermDslPackage extends EPackage
   int KERNEL_LITERAL__DOM = LITERAL__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int KERNEL_LITERAL__INDEX = LITERAL__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int KERNEL_LITERAL__T = LITERAL__T;
+
+  /**
    * The feature id for the '<em><b>Val</b></em>' attribute.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -391,6 +499,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int INTERVAL_LITERAL__DOM = LITERAL__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int INTERVAL_LITERAL__INDEX = LITERAL__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int INTERVAL_LITERAL__T = LITERAL__T;
 
   /**
    * The feature id for the '<em><b>Start</b></em>' containment reference.
@@ -448,6 +574,24 @@ public interface TermDslPackage extends EPackage
   int SET_LITERAL__DOM = LITERAL__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int SET_LITERAL__INDEX = LITERAL__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int SET_LITERAL__T = LITERAL__T;
+
+  /**
    * The feature id for the '<em><b>Literal</b></em>' containment reference list.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -483,6 +627,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int LIST_LITERAL__DOM = LITERAL__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LIST_LITERAL__INDEX = LITERAL__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LIST_LITERAL__T = LITERAL__T;
 
   /**
    * The feature id for the '<em><b>Literal</b></em>' containment reference list.
@@ -522,6 +684,24 @@ public interface TermDslPackage extends EPackage
   int BAG_LITERAL__DOM = LITERAL__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int BAG_LITERAL__INDEX = LITERAL__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int BAG_LITERAL__T = LITERAL__T;
+
+  /**
    * The feature id for the '<em><b>Literal</b></em>' containment reference list.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -559,6 +739,24 @@ public interface TermDslPackage extends EPackage
   int MAP_LITERAL__DOM = LITERAL__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int MAP_LITERAL__INDEX = LITERAL__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int MAP_LITERAL__T = LITERAL__T;
+
+  /**
    * The feature id for the '<em><b>Literal</b></em>' containment reference list.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -594,6 +792,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int FOR_ALL_TERM__DOM = BASIC_TERM__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int FOR_ALL_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int FOR_ALL_TERM__T = BASIC_TERM__T;
 
   /**
    * The feature id for the '<em><b>Var Term</b></em>' attribute list.
@@ -649,6 +865,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int EXISTS_TERM__DOM = BASIC_TERM__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int EXISTS_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int EXISTS_TERM__T = BASIC_TERM__T;
 
   /**
    * The feature id for the '<em><b>Unique</b></em>' attribute.
@@ -715,6 +949,24 @@ public interface TermDslPackage extends EPackage
   int SIZE_OF_ENUMERABLE_TERM__DOM = BASIC_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int SIZE_OF_ENUMERABLE_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int SIZE_OF_ENUMERABLE_TERM__T = BASIC_TERM__T;
+
+  /**
    * The feature id for the '<em><b>Enum Term</b></em>' containment reference.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -750,6 +1002,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int PICK_TERM__DOM = BASIC_TERM__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int PICK_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int PICK_TERM__T = BASIC_TERM__T;
 
   /**
    * The feature id for the '<em><b>Var Term</b></em>' attribute.
@@ -807,6 +1077,24 @@ public interface TermDslPackage extends EPackage
   int CONDITIONAL_TERM__DOM = BASIC_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int CONDITIONAL_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int CONDITIONAL_TERM__T = BASIC_TERM__T;
+
+  /**
    * The feature id for the '<em><b>Cond</b></em>' containment reference.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -860,6 +1148,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int CASE_TERM__DOM = BASIC_TERM__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int CASE_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int CASE_TERM__T = BASIC_TERM__T;
 
   /**
    * The feature id for the '<em><b>Case Term</b></em>' containment reference.
@@ -926,6 +1232,24 @@ public interface TermDslPackage extends EPackage
   int LET_TERM__DOM = BASIC_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LET_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LET_TERM__T = BASIC_TERM__T;
+
+  /**
    * The feature id for the '<em><b>Var Term</b></em>' attribute list.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -981,6 +1305,24 @@ public interface TermDslPackage extends EPackage
   int RULE_AS_TERM__DOM = BASIC_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int RULE_AS_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int RULE_AS_TERM__T = BASIC_TERM__T;
+
+  /**
    * The feature id for the '<em><b>Rule</b></em>' attribute.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -1016,6 +1358,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int RETURN_TERM__DOM = BASIC_TERM__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int RETURN_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int RETURN_TERM__T = BASIC_TERM__T;
 
   /**
    * The feature id for the '<em><b>Term</b></em>' containment reference.
@@ -1055,6 +1415,24 @@ public interface TermDslPackage extends EPackage
   int COMPREHENSION_TERM__DOM = BASIC_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int COMPREHENSION_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int COMPREHENSION_TERM__T = BASIC_TERM__T;
+
+  /**
    * The number of structural features of the '<em>Comprehension Term</em>' class.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -1081,6 +1459,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int SET_COMPREHENSION_TERM__DOM = COMPREHENSION_TERM__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int SET_COMPREHENSION_TERM__INDEX = COMPREHENSION_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int SET_COMPREHENSION_TERM__T = COMPREHENSION_TERM__T;
 
   /**
    * The feature id for the '<em><b>Term</b></em>' containment reference.
@@ -1147,6 +1543,24 @@ public interface TermDslPackage extends EPackage
   int LIST_COMPREHENSION_TERM__DOM = COMPREHENSION_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LIST_COMPREHENSION_TERM__INDEX = COMPREHENSION_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LIST_COMPREHENSION_TERM__T = COMPREHENSION_TERM__T;
+
+  /**
    * The feature id for the '<em><b>Term</b></em>' containment reference.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -1211,6 +1625,24 @@ public interface TermDslPackage extends EPackage
   int BAG_COMPREHENSION_TERM__DOM = COMPREHENSION_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int BAG_COMPREHENSION_TERM__INDEX = COMPREHENSION_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int BAG_COMPREHENSION_TERM__T = COMPREHENSION_TERM__T;
+
+  /**
    * The feature id for the '<em><b>Term</b></em>' containment reference.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -1273,6 +1705,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int MAP_COMPREHENSION_TERM__DOM = COMPREHENSION_TERM__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int MAP_COMPREHENSION_TERM__INDEX = COMPREHENSION_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int MAP_COMPREHENSION_TERM__T = COMPREHENSION_TERM__T;
 
   /**
    * The feature id for the '<em><b>Term1</b></em>' containment reference.
@@ -1348,6 +1798,24 @@ public interface TermDslPackage extends EPackage
   int NUMBER_RANGE_TERM__DOM = COMPREHENSION_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int NUMBER_RANGE_TERM__INDEX = COMPREHENSION_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int NUMBER_RANGE_TERM__T = COMPREHENSION_TERM__T;
+
+  /**
    * The feature id for the '<em><b>Start</b></em>' containment reference.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -1403,6 +1871,24 @@ public interface TermDslPackage extends EPackage
   int STRUCTURE_TERM__DOM = BASIC_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int STRUCTURE_TERM__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int STRUCTURE_TERM__T = BASIC_TERM__T;
+
+  /**
    * The feature id for the '<em><b>Term</b></em>' containment reference list.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -1438,6 +1924,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int SET_TERM__DOM = STRUCTURE_TERM__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int SET_TERM__INDEX = STRUCTURE_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int SET_TERM__T = STRUCTURE_TERM__T;
 
   /**
    * The feature id for the '<em><b>Term</b></em>' containment reference list.
@@ -1477,6 +1981,24 @@ public interface TermDslPackage extends EPackage
   int LIST_TERM__DOM = STRUCTURE_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LIST_TERM__INDEX = STRUCTURE_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int LIST_TERM__T = STRUCTURE_TERM__T;
+
+  /**
    * The feature id for the '<em><b>Term</b></em>' containment reference list.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -1512,6 +2034,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int BAG_TERM__DOM = STRUCTURE_TERM__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int BAG_TERM__INDEX = STRUCTURE_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int BAG_TERM__T = STRUCTURE_TERM__T;
 
   /**
    * The feature id for the '<em><b>Term</b></em>' containment reference list.
@@ -1551,6 +2091,24 @@ public interface TermDslPackage extends EPackage
   int MAP_TERM__DOM = STRUCTURE_TERM__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int MAP_TERM__INDEX = STRUCTURE_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int MAP_TERM__T = STRUCTURE_TERM__T;
+
+  /**
    * The feature id for the '<em><b>Term</b></em>' containment reference list.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -1588,6 +2146,24 @@ public interface TermDslPackage extends EPackage
   int STRING_LITERAL__DOM = LITERAL__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int STRING_LITERAL__INDEX = LITERAL__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int STRING_LITERAL__T = LITERAL__T;
+
+  /**
    * The feature id for the '<em><b>Text</b></em>' attribute.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -1623,6 +2199,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int CHAR_LITERAL__DOM = LITERAL__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int CHAR_LITERAL__INDEX = LITERAL__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int CHAR_LITERAL__T = LITERAL__T;
 
   /**
    * The feature id for the '<em><b>Text</b></em>' attribute.
@@ -1801,6 +2395,24 @@ public interface TermDslPackage extends EPackage
   int NUMBER_LITERAL__DOM = LITERAL__DOM;
 
   /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int NUMBER_LITERAL__INDEX = LITERAL__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int NUMBER_LITERAL__T = LITERAL__T;
+
+  /**
    * The feature id for the '<em><b>Value</b></em>' attribute.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -1845,6 +2457,24 @@ public interface TermDslPackage extends EPackage
    * @ordered
    */
   int TUPLE_LITERAL__DOM = BASIC_TERM__DOM;
+
+  /**
+   * The feature id for the '<em><b>Index</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int TUPLE_LITERAL__INDEX = BASIC_TERM__INDEX;
+
+  /**
+   * The feature id for the '<em><b>T</b></em>' containment reference.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   * @ordered
+   */
+  int TUPLE_LITERAL__T = BASIC_TERM__T;
 
   /**
    * The feature id for the '<em><b>Literals</b></em>' containment reference list.
@@ -2096,6 +2726,28 @@ public interface TermDslPackage extends EPackage
    * @generated
    */
   EClass getBasicTerm();
+
+  /**
+   * Returns the meta object for the containment reference '{@link org.uasm.term.lang.termDsl.BasicTerm#getIndex <em>Index</em>}'.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @return the meta object for the containment reference '<em>Index</em>'.
+   * @see org.uasm.term.lang.termDsl.BasicTerm#getIndex()
+   * @see #getBasicTerm()
+   * @generated
+   */
+  EReference getBasicTerm_Index();
+
+  /**
+   * Returns the meta object for the containment reference '{@link org.uasm.term.lang.termDsl.BasicTerm#getT <em>T</em>}'.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @return the meta object for the containment reference '<em>T</em>'.
+   * @see org.uasm.term.lang.termDsl.BasicTerm#getT()
+   * @see #getBasicTerm()
+   * @generated
+   */
+  EReference getBasicTerm_T();
 
   /**
    * Returns the meta object for class '{@link org.uasm.term.lang.termDsl.TupleTerm <em>Tuple Term</em>}'.
@@ -3491,6 +4143,22 @@ public interface TermDslPackage extends EPackage
      * @generated
      */
     EClass BASIC_TERM = eINSTANCE.getBasicTerm();
+
+    /**
+     * The meta object literal for the '<em><b>Index</b></em>' containment reference feature.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    EReference BASIC_TERM__INDEX = eINSTANCE.getBasicTerm_Index();
+
+    /**
+     * The meta object literal for the '<em><b>T</b></em>' containment reference feature.
+     * <!-- begin-user-doc -->
+     * <!-- end-user-doc -->
+     * @generated
+     */
+    EReference BASIC_TERM__T = eINSTANCE.getBasicTerm_T();
 
     /**
      * The meta object literal for the '{@link org.uasm.term.lang.termDsl.impl.TupleTermImpl <em>Tuple Term</em>}' class.

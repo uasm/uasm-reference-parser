@@ -596,76 +596,101 @@ public class TermDslGrammarAccess extends AbstractGrammarElementFinder {
 	public class BasicTermElements extends AbstractParserRuleElementFinder {
 		private final ParserRule rule = (ParserRule) GrammarUtil.findRuleForName(getGrammar(), "org.uasm.term.lang.TermDsl.BasicTerm");
 		private final Alternatives cAlternatives = (Alternatives)rule.eContents().get(1);
-		private final RuleCall cTupleTermParserRuleCall_0 = (RuleCall)cAlternatives.eContents().get(0);
-		private final RuleCall cLocationTermParserRuleCall_1 = (RuleCall)cAlternatives.eContents().get(1);
-		private final RuleCall cComprehensionTermParserRuleCall_2 = (RuleCall)cAlternatives.eContents().get(2);
-		private final RuleCall cStructureTermParserRuleCall_3 = (RuleCall)cAlternatives.eContents().get(3);
-		private final RuleCall cPickTermParserRuleCall_4 = (RuleCall)cAlternatives.eContents().get(4);
-		private final RuleCall cConditionalTermParserRuleCall_5 = (RuleCall)cAlternatives.eContents().get(5);
-		private final RuleCall cCaseTermParserRuleCall_6 = (RuleCall)cAlternatives.eContents().get(6);
-		private final RuleCall cRuleAsTermParserRuleCall_7 = (RuleCall)cAlternatives.eContents().get(7);
-		private final RuleCall cReturnTermParserRuleCall_8 = (RuleCall)cAlternatives.eContents().get(8);
-		private final RuleCall cForAllTermParserRuleCall_9 = (RuleCall)cAlternatives.eContents().get(9);
-		private final RuleCall cExistsTermParserRuleCall_10 = (RuleCall)cAlternatives.eContents().get(10);
-		private final RuleCall cLetTermParserRuleCall_11 = (RuleCall)cAlternatives.eContents().get(11);
-		private final RuleCall cLiteralParserRuleCall_12 = (RuleCall)cAlternatives.eContents().get(12);
-		private final RuleCall cTupleLiteralParserRuleCall_13 = (RuleCall)cAlternatives.eContents().get(13);
-		private final RuleCall cSizeOfEnumerableTermParserRuleCall_14 = (RuleCall)cAlternatives.eContents().get(14);
+		private final Group cGroup_0 = (Group)cAlternatives.eContents().get(0);
+		private final Keyword cGet_Keyword_0_0 = (Keyword)cGroup_0.eContents().get(0);
+		private final Assignment cIndexAssignment_0_1 = (Assignment)cGroup_0.eContents().get(1);
+		private final RuleCall cIndexNumberLiteralParserRuleCall_0_1_0 = (RuleCall)cIndexAssignment_0_1.eContents().get(0);
+		private final Assignment cTAssignment_0_2 = (Assignment)cGroup_0.eContents().get(2);
+		private final RuleCall cTTupleTermParserRuleCall_0_2_0 = (RuleCall)cTAssignment_0_2.eContents().get(0);
+		private final RuleCall cTupleTermParserRuleCall_1 = (RuleCall)cAlternatives.eContents().get(1);
+		private final RuleCall cLocationTermParserRuleCall_2 = (RuleCall)cAlternatives.eContents().get(2);
+		private final RuleCall cComprehensionTermParserRuleCall_3 = (RuleCall)cAlternatives.eContents().get(3);
+		private final RuleCall cStructureTermParserRuleCall_4 = (RuleCall)cAlternatives.eContents().get(4);
+		private final RuleCall cPickTermParserRuleCall_5 = (RuleCall)cAlternatives.eContents().get(5);
+		private final RuleCall cConditionalTermParserRuleCall_6 = (RuleCall)cAlternatives.eContents().get(6);
+		private final RuleCall cCaseTermParserRuleCall_7 = (RuleCall)cAlternatives.eContents().get(7);
+		private final RuleCall cRuleAsTermParserRuleCall_8 = (RuleCall)cAlternatives.eContents().get(8);
+		private final RuleCall cReturnTermParserRuleCall_9 = (RuleCall)cAlternatives.eContents().get(9);
+		private final RuleCall cForAllTermParserRuleCall_10 = (RuleCall)cAlternatives.eContents().get(10);
+		private final RuleCall cExistsTermParserRuleCall_11 = (RuleCall)cAlternatives.eContents().get(11);
+		private final RuleCall cLetTermParserRuleCall_12 = (RuleCall)cAlternatives.eContents().get(12);
+		private final RuleCall cLiteralParserRuleCall_13 = (RuleCall)cAlternatives.eContents().get(13);
+		private final RuleCall cTupleLiteralParserRuleCall_14 = (RuleCall)cAlternatives.eContents().get(14);
+		private final RuleCall cSizeOfEnumerableTermParserRuleCall_15 = (RuleCall)cAlternatives.eContents().get(15);
 		
 		//BasicTerm:
-		//	TupleTerm | LocationTerm | ComprehensionTerm | StructureTerm | PickTerm | ConditionalTerm | CaseTerm | RuleAsTerm |
-		//	ReturnTerm | ForAllTerm | ExistsTerm | LetTerm
+		//	'get_' index=NumberLiteral t=TupleTerm | TupleTerm | LocationTerm | ComprehensionTerm | StructureTerm | PickTerm |
+		//	ConditionalTerm | CaseTerm | RuleAsTerm | ReturnTerm | ForAllTerm | ExistsTerm | LetTerm
 		//	| Literal | TupleLiteral | SizeOfEnumerableTerm;
 		@Override public ParserRule getRule() { return rule; }
 		
-		//TupleTerm | LocationTerm | ComprehensionTerm | StructureTerm | PickTerm | ConditionalTerm | CaseTerm | RuleAsTerm |
-		//ReturnTerm | ForAllTerm | ExistsTerm | LetTerm | Literal | TupleLiteral | SizeOfEnumerableTerm
+		//'get_' index=NumberLiteral t=TupleTerm | TupleTerm | LocationTerm | ComprehensionTerm | StructureTerm | PickTerm |
+		//ConditionalTerm | CaseTerm | RuleAsTerm | ReturnTerm | ForAllTerm | ExistsTerm | LetTerm | Literal | TupleLiteral |
+		//SizeOfEnumerableTerm
 		public Alternatives getAlternatives() { return cAlternatives; }
 		
+		//'get_' index=NumberLiteral t=TupleTerm
+		public Group getGroup_0() { return cGroup_0; }
+		
+		//'get_'
+		public Keyword getGet_Keyword_0_0() { return cGet_Keyword_0_0; }
+		
+		//index=NumberLiteral
+		public Assignment getIndexAssignment_0_1() { return cIndexAssignment_0_1; }
+		
+		//NumberLiteral
+		public RuleCall getIndexNumberLiteralParserRuleCall_0_1_0() { return cIndexNumberLiteralParserRuleCall_0_1_0; }
+		
+		//t=TupleTerm
+		public Assignment getTAssignment_0_2() { return cTAssignment_0_2; }
+		
 		//TupleTerm
-		public RuleCall getTupleTermParserRuleCall_0() { return cTupleTermParserRuleCall_0; }
+		public RuleCall getTTupleTermParserRuleCall_0_2_0() { return cTTupleTermParserRuleCall_0_2_0; }
+		
+		//TupleTerm
+		public RuleCall getTupleTermParserRuleCall_1() { return cTupleTermParserRuleCall_1; }
 		
 		//LocationTerm
-		public RuleCall getLocationTermParserRuleCall_1() { return cLocationTermParserRuleCall_1; }
+		public RuleCall getLocationTermParserRuleCall_2() { return cLocationTermParserRuleCall_2; }
 		
 		//ComprehensionTerm
-		public RuleCall getComprehensionTermParserRuleCall_2() { return cComprehensionTermParserRuleCall_2; }
+		public RuleCall getComprehensionTermParserRuleCall_3() { return cComprehensionTermParserRuleCall_3; }
 		
 		//StructureTerm
-		public RuleCall getStructureTermParserRuleCall_3() { return cStructureTermParserRuleCall_3; }
+		public RuleCall getStructureTermParserRuleCall_4() { return cStructureTermParserRuleCall_4; }
 		
 		//PickTerm
-		public RuleCall getPickTermParserRuleCall_4() { return cPickTermParserRuleCall_4; }
+		public RuleCall getPickTermParserRuleCall_5() { return cPickTermParserRuleCall_5; }
 		
 		//ConditionalTerm
-		public RuleCall getConditionalTermParserRuleCall_5() { return cConditionalTermParserRuleCall_5; }
+		public RuleCall getConditionalTermParserRuleCall_6() { return cConditionalTermParserRuleCall_6; }
 		
 		//CaseTerm
-		public RuleCall getCaseTermParserRuleCall_6() { return cCaseTermParserRuleCall_6; }
+		public RuleCall getCaseTermParserRuleCall_7() { return cCaseTermParserRuleCall_7; }
 		
 		//RuleAsTerm
-		public RuleCall getRuleAsTermParserRuleCall_7() { return cRuleAsTermParserRuleCall_7; }
+		public RuleCall getRuleAsTermParserRuleCall_8() { return cRuleAsTermParserRuleCall_8; }
 		
 		//ReturnTerm
-		public RuleCall getReturnTermParserRuleCall_8() { return cReturnTermParserRuleCall_8; }
+		public RuleCall getReturnTermParserRuleCall_9() { return cReturnTermParserRuleCall_9; }
 		
 		//ForAllTerm
-		public RuleCall getForAllTermParserRuleCall_9() { return cForAllTermParserRuleCall_9; }
+		public RuleCall getForAllTermParserRuleCall_10() { return cForAllTermParserRuleCall_10; }
 		
 		//ExistsTerm
-		public RuleCall getExistsTermParserRuleCall_10() { return cExistsTermParserRuleCall_10; }
+		public RuleCall getExistsTermParserRuleCall_11() { return cExistsTermParserRuleCall_11; }
 		
 		//LetTerm
-		public RuleCall getLetTermParserRuleCall_11() { return cLetTermParserRuleCall_11; }
+		public RuleCall getLetTermParserRuleCall_12() { return cLetTermParserRuleCall_12; }
 		
 		//Literal
-		public RuleCall getLiteralParserRuleCall_12() { return cLiteralParserRuleCall_12; }
+		public RuleCall getLiteralParserRuleCall_13() { return cLiteralParserRuleCall_13; }
 		
 		//TupleLiteral
-		public RuleCall getTupleLiteralParserRuleCall_13() { return cTupleLiteralParserRuleCall_13; }
+		public RuleCall getTupleLiteralParserRuleCall_14() { return cTupleLiteralParserRuleCall_14; }
 		
 		//SizeOfEnumerableTerm
-		public RuleCall getSizeOfEnumerableTermParserRuleCall_14() { return cSizeOfEnumerableTermParserRuleCall_14; }
+		public RuleCall getSizeOfEnumerableTermParserRuleCall_15() { return cSizeOfEnumerableTermParserRuleCall_15; }
 	}
 	public class TupleTermElements extends AbstractParserRuleElementFinder {
 		private final ParserRule rule = (ParserRule) GrammarUtil.findRuleForName(getGrammar(), "org.uasm.term.lang.TermDsl.TupleTerm");
@@ -3459,8 +3484,8 @@ public class TermDslGrammarAccess extends AbstractGrammarElementFinder {
 	}
 	
 	//BasicTerm:
-	//	TupleTerm | LocationTerm | ComprehensionTerm | StructureTerm | PickTerm | ConditionalTerm | CaseTerm | RuleAsTerm |
-	//	ReturnTerm | ForAllTerm | ExistsTerm | LetTerm
+	//	'get_' index=NumberLiteral t=TupleTerm | TupleTerm | LocationTerm | ComprehensionTerm | StructureTerm | PickTerm |
+	//	ConditionalTerm | CaseTerm | RuleAsTerm | ReturnTerm | ForAllTerm | ExistsTerm | LetTerm
 	//	| Literal | TupleLiteral | SizeOfEnumerableTerm;
 	public BasicTermElements getBasicTermAccess() {
 		return pBasicTerm;
