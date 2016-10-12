@@ -1,0 +1,103 @@
+entrypoints Main ;
+
+comment "//" ;
+comment "/*" "*/" ;
+comment "--" ;
+comment "{-" "-}" ;
+
+
+token BooleanLit ({"true"} | {"false"}) ;
+token UndefLit {"undef"} ;
+token SelfLit {"self"} ;
+
+-- just to allow arbitrary amount of test terms
+EMainT. Main ::= Exp ;
+EMain. Main ::= Exp Main ;
+
+EExpValueExp.  Exp ::= Term ;
+EExpFormula.    Exp1 ::= Formula ;
+
+coercions Exp 3 ;
+
+
+-- Remark:
+-- removed EnumTerm and VariableTerm because of conflicts regarding the parser.
+-- It is always an Ident at the end and we have to take care of this in a later phase of 
+-- the parsing process.     
+
+
+rules BooleanTerm ::= VarTerm
+                    | BooleanLit 
+                    | RelationalTerm ;
+--                    | MembershipTerm ;
+--                  | CollectionOperatorTerm ;
+
+rules VarTerm ::= LocationTerm ;
+
+StringTerm. Term ::= StringTerm  ;
+NumberTerm. Term ::= NumberTerm ;
+BooleanTerm. Term ::=  BooleanTerm ;
+UndefTerm. Term ::=  UndefLit ;
+SelfTerm. Term ::=  SelfLit ;
+VarTerm. Term ::=  VarTerm ;
+
+coercions Term 2 ;
+
+NumberTermPlus.   NumberTerm  ::= NumberTerm  "+"   NumberTerm1 ;
+NumberTermMin.    NumberTerm  ::= NumberTerm  "-"   NumberTerm1 ;
+NumberTermMult.   NumberTerm1 ::= NumberTerm1 "*"   NumberTerm2 ;
+NumberTermDiv.    NumberTerm1 ::= NumberTerm1 "div" NumberTerm2 ;
+NumberTermDivD.   NumberTerm1 ::= NumberTerm1 "/"   NumberTerm2 ;
+NumberTermMod.    NumberTerm1 ::= NumberTerm1 "mod" NumberTerm2 ;
+NumberTermPow.    NumberTerm2 ::= NumberTerm2 "^"   NumberTerm3 ;
+NumberLitInt.     NumberTerm3 ::= Integer ;
+NumberLitDouble.  NumberTerm3 ::= Double ;
+NumberTermVar.    NumberTerm3 ::= VarTerm ;
+
+coercions NumberTerm 3 ;
+
+
+StringTermString. StringTerm ::= String ;
+StringTermOpR.    StringTerm ::= Term "+" StringTerm ;
+StringTermOpL.    StringTerm ::= StringTerm "+" Term ;
+
+ERelational.   RelationalTerm ::= Term RelationalOperator Term ;
+ERelationalOp. RelationalOperator ::= "<" ;
+ERelationalOp. RelationalOperator ::= "<=" ;
+ERelationalOp. RelationalOperator ::= ">" ;
+ERelationalOp. RelationalOperator ::= ">=" ;
+
+EFunctionTerm. FunctionTerm ::= Ident ;
+EFunctionTerm1. FunctionTerm ::= Ident "(" Term ")" ;
+EFunctionTerm2. FunctionTerm ::= Ident TupleTerm ;
+
+rules LocationTerm ::= FunctionTerm | "result" ;
+
+ETupleTerm. TupleTerm ::= "(" Term "," ComponentTerm ")" ;
+EComponentTerm. ComponentTerm  ::= Term ;
+EComponentTerm1. ComponentTerm ::= Term "," ComponentTerm ;
+
+
+----------------
+-- Formulas ----
+----------------
+
+EFormulaIff.      Formula  ::= Formula  "iff" Formula1 ;
+EFormulaImplies.  Formula1 ::= Formula1 "implies" Formula2 ;
+EFormulaOr.       Formula2 ::= Formula2 "or" Formula3 ;
+EFormulaOr.       Formula2 ::= Formula2 "xor" Formula3 ;
+EFormulaAnd.      Formula3 ::= Formula3 "and" Formula4 ;
+EFormulaEq.       Formula4 ::= Term "=" Term ;
+EFormulaEq.       Formula4 ::= Term "!=" Term ;
+EFormulaEq.       Formula4 ::= Term "≠" Term ;
+--EFormulaForall.   Formula3 ::= Formula4 ;
+--EFormulaExists.   Formula4 ::= Formula5 ;
+EFormulaBoolTerm. Formula5 ::= BooleanTerm ;
+EFormulaNeg.      Formula6 ::= "not" Formula6 ;
+
+coercions Formula 6 ;
+
+ -- actually, we don't want to mix up Terms with Formulas, but in order to allow some abbreviations, 
+ -- we allow terms that result in a boolean value.
+ -- The semantics is as if these terms t are put into an equation formula: t = true.
+
